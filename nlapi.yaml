@@ -73,6 +73,8 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+        '413':
+          description: Request Entity Too Large
         '500':
           description: Internal Server Error
       security:
@@ -135,6 +137,8 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+        '413':
+          description: Request Entity Too Large          
         '500':
           description: Internal Server Error          
       security:
@@ -180,6 +184,8 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+        '413':
+          description: Request Entity Too Large          
         '500':
           description: Internal Server Error          
       security:
