@@ -1,6 +1,6 @@
 # expert.ai Natural Language API OpenAPI Specification
 
-## Version 1
+## Version 2
 
 This project contains the **OpenAPI Document** for the expert.ai Natural Language API v2 in the form of a YAML format file.
 
