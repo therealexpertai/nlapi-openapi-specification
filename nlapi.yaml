@@ -1,13 +1,12 @@
 openapi: 3.0.3
 info:
   contact:
-    email: api.support@expert.ai
+    email: api.inquiry@expert.ai
     name: expert.ai
     url: 'https://expert.ai/'
   description: >
     Natural Language API provides a comprehensive set of natural language
     understanding capabilities based on expert.ai technology:
-
     <ul>
       <li>Text subdivision</li>
       <li>Part-of-speech tagging</li>
@@ -16,15 +15,17 @@ info:
       <li>Keyphrase extraction</li>
       <li>Semantic analysis</li>
       <li>Named entity recognition</li>
+      <li>Relation extraction</li>
+      <li>Sentiment analysis</li>
       <li>Classification</li>
     </ul>
   title: expert.ai Natural Language API
-  version: v1
+  version: v2
 externalDocs:
   description: API documentation
-  url: 'https://docs.expert.ai/nlapi/v1/'
+  url: 'https://docs.expert.ai/nlapi/v2/'
 servers:
-  - url: 'https://nlapi.expert.ai/v1'
+  - url: 'https://nlapi.expert.ai/v2'
 tags:
   - description: Analysis API endpoints
     name: Document Analysis
@@ -35,24 +36,31 @@ tags:
   - description: Taxonomies info API endpoints
     name: Taxonomies
 paths:
-  '/analyze/standard/{language}':
+  /analyze/{context}/{language}:
     post:
-      description: |
-        Perform the full analysis
+      description: Full analysis (i.e., sum of all available analyses) of the posted text
       parameters:
-        - description: Document language
+        - description: Context name; use the `contexts` resource to discover available contexts
+          explode: false
+          in: path
+          name: context
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Document language (code)
           explode: false
           in: path
           name: language
           required: true
           schema:
+            type: string
             enum:
               - de
               - en
               - es
               - fr
               - it
-            type: string
           style: simple
       requestBody:
         content:
@@ -66,7 +74,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AnalyzeResponse'
-          description: The analyze resource response
+          description: Resource response
         '401':
           description: Unauthorized
         '403':
@@ -82,40 +90,53 @@ paths:
       summary: Full analysis
       tags:
         - Document Analysis
-  '/analyze/standard/{language}/{resource}':
+  /analyze/{context}/{language}/{analysis}:
     post:
       description: |
-        Available resources are:
+        Specific analysis of the posted text.
+        Available analyses are:
         <ul>
-          <li><strong>disambiguation</strong>: performs linguistic analysis (text subdivision, part-of-speech tagging, morphological analysis, lemmatization, syntactic analysis and semantic analysis)</li>
-          <li><strong>relevants</strong>: performs keyphrase extraction</li>
-          <li><strong>entities</strong>: performs named entity recognition</li>
+          <li><strong>disambiguation</strong>: linguistic analysis (text subdivision, part-of-speech tagging, morphological analysis, lemmatization, syntactic analysis and semantic analysis)</li>
+          <li><strong>relevants</strong>: keyphrase extraction</li>
+          <li><strong>entities</strong>: named entity recognition</li>
+          <li><strong>relations</strong>: relation extraction</li>
+          <li><strong>sentiment</strong>: sentiment analysis</li>
         </ul>
       parameters:
-        - description: Document language
+        - description: Context name; use the `contexts` resource to discover available contexts
+          explode: false
+          in: path
+          name: context
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Document language (code)
           explode: false
           in: path
           name: language
           required: true
           schema:
+            type: string
             enum:
               - de
               - en
               - es
               - fr
               - it
-            type: string
           style: simple
-        - description: Name of the resource performing the required analysis
+        - description: Analysis name; use the `contexts` resource to determine if the context provides that analysis for the chosen language
           explode: false
           in: path
-          name: resource
+          name: analysis
           required: true
           schema:
             enum:
               - disambiguation
               - relevants
               - entities
+              - sentiment
+              - relations
             type: string
           style: simple
       requestBody:
@@ -130,7 +151,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AnalyzeResponse'
-          description: The analyze resource response
+          description: Resource response
         '401':
           description: Unauthorized
         '403':
@@ -138,32 +159,39 @@ paths:
         '404':
           description: Not Found
         '413':
-          description: Request Entity Too Large          
+          description: Request Entity Too Large
         '500':
-          description: Internal Server Error          
+          description: Internal Server Error
       security:
         - bearerAuth: []
-      summary: Specific analysis resources
+      summary: Specific analysis
       tags:
         - Document Analysis
-  '/categorize/iptc/{language}':
+  /categorize/{taxonomy}/{language}:
     post:
-      description: |
-        Performs IPTC Media Topics classification
+      description: Classification of the posted text
       parameters:
-        - description: Document language
+        - description: Taxonomy name; use the `taxonomies` resource to discover available taxonomies
+          explode: false
+          in: path
+          name: taxonomy
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Document language (code); use the `taxonomies` resource to discover the languages that the taxonomy supports
           explode: false
           in: path
           name: language
           required: true
           schema:
+            type: string
             enum:
               - de
               - en
               - es
               - fr
               - it
-            type: string
           style: simple
       requestBody:
         content:
@@ -177,7 +205,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategorizeResponse'
-          description: The categorize resource response
+          description: Resource response
         '401':
           description: Unauthorized
         '403':
@@ -185,18 +213,17 @@ paths:
         '404':
           description: Not Found
         '413':
-          description: Request Entity Too Large          
+          description: Request Entity Too Large
         '500':
-          description: Internal Server Error          
+          description: Internal Server Error
       security:
         - bearerAuth: []
-      summary: IPTC Media Topics classification
+      summary: Classification
       tags:
         - Document Classification
   /contexts:
     get:
-      description: |
-        Get the list of available contexts
+      description: Information about available contexts
       responses:
         '200':
           $ref: '#/components/responses/200Contexts'
@@ -207,36 +234,15 @@ paths:
         '404':
           description: Not Found
         '500':
-          description: Internal Server Error      
+          description: Internal Server Error
       security:
         - bearerAuth: []
-      summary: Contexts list
-      tags:
-        - Contexts
-  /contexts/standard:
-    get:
-      description: |
-        Get the standard context languages
-      responses:
-        '200':
-          $ref: '#/components/responses/200ContextsStandard'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: Not Found
-        '500':
-          description: Internal Server Error          
-      security:
-        - bearerAuth: []
-      summary: Standard context info
+      summary: Contexts information
       tags:
         - Contexts
   /taxonomies:
     get:
-      description: |
-        Get the lists of taxonomies
+      description: Information about available taxonomies
       responses:
         '200':
           $ref: '#/components/responses/200Taxonomies'
@@ -247,19 +253,41 @@ paths:
         '404':
           description: Not Found
         '500':
-          description: Internal Server Error          
+          description: Internal Server Error
       security:
         - bearerAuth: []
-      summary: Taxonomies list
+      summary: Taxonomies information
       tags:
         - Taxonomies
-  /taxonomies/iptc:
+  /taxonomies/{taxonomy}/{language}:
     get:
-      description: |
-        Get the IPTC taxonomy languages
+      description: Detailed information about a taxonomy for a given language
+      parameters:
+        - description: Taxonomy name
+          explode: false
+          in: path
+          name: taxonomy
+          required: true
+          schema:
+            type: string         
+          style: simple
+        - description: Taxonomy language (code); use the `taxonomies` resource to discover the languages that the taxonomy supports
+          explode: false
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+          style: simple
       responses:
         '200':
-          $ref: '#/components/responses/200TaxonomiesIptc'
+          $ref: '#/components/responses/200Taxonomy'
         '401':
           description: Unauthorized
         '403':
@@ -267,121 +295,73 @@ paths:
         '404':
           description: Not Found
         '500':
-          description: Internal Server Error          
+          description: Internal Server Error
       security:
         - bearerAuth: []
-      summary: IPTC taxonomy info
+      summary: Taxonomy tree
       tags:
         - Taxonomies
 components:
   responses:
     200Analyze:
+      description: Resource response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/AnalyzeResponse'
-      description: The analyze resource response
     200Categorize:
+      description: Resource response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CategorizeResponse'
-      description: The categorize resource response
     200Contexts:
+      description: Resource response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ContextsResponse'
-      description: The contexts resource response
-    200ContextsStandard:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ContextsStandardResponse'
-      description: The standard context resource response
     200Taxonomies:
+      description: Resource response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/TaxonomiesResponse'
-      description: The taxonomies resource response
-    200TaxonomiesIptc:
+    200Taxonomy:
+      description: Resource response
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/TaxonomiesIptcResponse'
-      description: The iptc taxonomy resource response
+            $ref: '#/components/schemas/TaxonomyResponse'
   schemas:
     ContextsResponse:
       description: Available contexts
-      properties:
-        standard:
-          $ref: '#/components/schemas/Standard'
-      type: object
-    ContextsStandardResponse:
-      description: Languages supported by the standard context
-      properties:
-        standard:
-          $ref: '#/components/schemas/Standard'
-      type: object
+      type: array
+      items:
+        $ref: '#/components/schemas/ContextInfo'
     TaxonomiesResponse:
       description: Available taxonomies
-      properties:
-        taxonomies:
-          $ref: '#/components/schemas/TaxonomiesResponse_taxonomies'
-      type: object
-    TaxonomiesIptcResponse:
-      description: Languages available for the iptc taxonomy
-      properties:
-        taxonomies:
-          $ref: '#/components/schemas/TaxonomiesIptcResponse_taxonomies'
-      type: object
-    Standard:
-      description: Languages available for the standard context
-      properties:
-        description:
-          description: Description
-          type: string
-        languages:
-          description: List of languages
-          items:
-            $ref: '#/components/schemas/Standard_languages'
-          type: array
-      type: object
-    Iptc:
-      description: Languages available for the iptc taxonomy
-      properties:
-        description:
-          type: string
-        languages:
-          description: List of languages
-          items:
-            $ref: '#/components/schemas/Standard_languages'
-          type: array
-      type: object
+      type: array
+      items:
+        $ref: '#/components/schemas/TaxonomyInfo'
+    TaxonomyResponse:
+      description: Taxonomy categories
+      type: array
+      items:
+        $ref: '#/components/schemas/TaxonomyCategory'
     AnalysisRequest:
       description: Request
-      example:
-        document:
-          text: text
       properties:
         document:
           $ref: '#/components/schemas/Document'
-      type: object
     Document:
       description: Document
-      example:
-        text: text
       properties:
         text:
           description: The document's text
           type: string
-      type: object
     DocumentPosition:
       description: Position
-      example:
-        start: 6
-        end: 3
       properties:
         start:
           description: Zero-based position of the first character
@@ -391,12 +371,8 @@ components:
           description: Zero-based position of the character after the last
           format: int64
           type: integer
-      type: object
     ServiceError:
       description: Error information
-      example:
-        code: code
-        message: message
       properties:
         code:
           description: Error code
@@ -404,478 +380,116 @@ components:
         message:
           description: Error message
           type: string
-      type: object
     AnalyzeResponse:
-      description: Analyze resource response
-      example:
-        data:
-          mainSyncons:
-            - score: 28.841621
-              syncon: 1
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-            - score: 28.841621
-              syncon: 1
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-          mainPhrases:
-            - score: 90.18348
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              value: value
-            - score: 90.18348
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              value: value
-          sentences:
-            - start: 5
-              end: 5
-              phrases:
-                - 2
-                - 2
-            - start: 5
-              end: 5
-              phrases:
-                - 2
-                - 2
-          topics:
-            - score: 59.448956
-              winner: true
-              id: 6
-              label: label
-            - score: 59.448956
-              winner: true
-              id: 6
-              label: label
-          mainSentences:
-            - score: 93.6931
-              start: 6
-              end: 8
-              value: value
-            - score: 93.6931
-              start: 6
-              end: 8
-              value: value
-          language: en
-          mainLemmas:
-            - score: 69.65118
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              value: value
-            - score: 69.65118
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              value: value
-          paragraphs:
-            - sentences:
-                - 1
-                - 1
-              start: 0
-              end: 6
-            - sentences:
-                - 1
-                - 1
-              start: 0
-              end: 6
-          version: version
-          entities:
-            - syncon: 6
-              lemma: lemma
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              type: ADR
-            - syncon: 6
-              lemma: lemma
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              type: ADR
-          tokens:
-            - sentence: 1
-              paragraph: 7
-              syncon: 7
-              morphology: morphology
-              dependency:
-                head: 1
-                id: 1
-                label: acl
-              vsyn:
-                parent: 9
-                id: 5
-              start: 2
-              lemma: lemma
-              type: type
-              atoms:
-                - start: 1
-                  lemma: lemma
-                  end: 6
-                  type: type
-                - start: 1
-                  lemma: lemma
-                  end: 6
-                  type: type
-              phrase: 4
-              pos: ADJ
-              end: 4
-            - sentence: 1
-              paragraph: 7
-              syncon: 7
-              morphology: morphology
-              dependency:
-                head: 1
-                id: 1
-                label: acl
-              vsyn:
-                parent: 9
-                id: 5
-              start: 2
-              lemma: lemma
-              type: type
-              atoms:
-                - start: 1
-                  lemma: lemma
-                  end: 6
-                  type: type
-                - start: 1
-                  lemma: lemma
-                  end: 6
-                  type: type
-              phrase: 4
-              pos: ADJ
-              end: 4
-          phrases:
-            - start: 7
-              end: 9
-              tokens:
-                - 3
-                - 3
-              type: AP
-            - start: 7
-              end: 9
-              tokens:
-                - 3
-                - 3
-              type: AP
-          knowledge:
-            - label: label
-              syncon: 6
-              properties:
-                - type: type
-                  value: value
-                - type: type
-                  value: value
-            - label: label
-              syncon: 6
-              properties:
-                - type: type
-                  value: value
-                - type: type
-                  value: value
-        success: true
-        errors:
-          - code: code
-            message: message
-          - code: code
-            message: message
+      description: Analysis resource response
       properties:
         success:
           description: Operation completed successfully (true/false)
           type: boolean
         errors:
           description: Service errors
+          type: array
           items:
             $ref: '#/components/schemas/ServiceError'
-          type: array
         data:
           $ref: '#/components/schemas/AnalyzeDocument'
-      type: object
     AnalyzeDocument:
       description: Analysis data
-      example:
-        mainSyncons:
-          - score: 28.841621
-            syncon: 1
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-          - score: 28.841621
-            syncon: 1
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-        mainPhrases:
-          - score: 90.18348
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            value: value
-          - score: 90.18348
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            value: value
-        sentences:
-          - start: 5
-            end: 5
-            phrases:
-              - 2
-              - 2
-          - start: 5
-            end: 5
-            phrases:
-              - 2
-              - 2
-        topics:
-          - score: 59.448956
-            winner: true
-            id: 6
-            label: label
-          - score: 59.448956
-            winner: true
-            id: 6
-            label: label
-        mainSentences:
-          - score: 93.6931
-            start: 6
-            end: 8
-            value: value
-          - score: 93.6931
-            start: 6
-            end: 8
-            value: value
-        language: en
-        mainLemmas:
-          - score: 69.65118
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            value: value
-          - score: 69.65118
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            value: value
-        paragraphs:
-          - sentences:
-              - 1
-              - 1
-            start: 0
-            end: 6
-          - sentences:
-              - 1
-              - 1
-            start: 0
-            end: 6
-        version: version
-        entities:
-          - syncon: 6
-            lemma: lemma
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            type: ADR
-          - syncon: 6
-            lemma: lemma
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            type: ADR
-        tokens:
-          - sentence: 1
-            paragraph: 7
-            syncon: 7
-            morphology: morphology
-            dependency:
-              head: 1
-              id: 1
-              label: acl
-            vsyn:
-              parent: 9
-              id: 5
-            start: 2
-            lemma: lemma
-            type: type
-            atoms:
-              - start: 1
-                lemma: lemma
-                end: 6
-                type: type
-              - start: 1
-                lemma: lemma
-                end: 6
-                type: type
-            phrase: 4
-            pos: ADJ
-            end: 4
-          - sentence: 1
-            paragraph: 7
-            syncon: 7
-            morphology: morphology
-            dependency:
-              head: 1
-              id: 1
-              label: acl
-            vsyn:
-              parent: 9
-              id: 5
-            start: 2
-            lemma: lemma
-            type: type
-            atoms:
-              - start: 1
-                lemma: lemma
-                end: 6
-                type: type
-              - start: 1
-                lemma: lemma
-                end: 6
-                type: type
-            phrase: 4
-            pos: ADJ
-            end: 4
-        phrases:
-          - start: 7
-            end: 9
-            tokens:
-              - 3
-              - 3
-            type: AP
-          - start: 7
-            end: 9
-            tokens:
-              - 3
-              - 3
-            type: AP
-        knowledge:
-          - label: label
-            syncon: 6
-            properties:
-              - type: type
-                value: value
-              - type: type
-                value: value
-          - label: label
-            syncon: 6
-            properties:
-              - type: type
-                value: value
-              - type: type
-                value: value
       properties:
         version:
           description: Service version
           type: string
         language:
           description: Text language
-          enum:
-            - en
-            - it
-            - fr
-            - es
-            - de
           type: string
         paragraphs:
           description: Paragraphs
+          type: array
           items:
             $ref: '#/components/schemas/Paragraph'
-          type: array
         sentences:
           description: Sentences
+          type: array
           items:
             $ref: '#/components/schemas/Sentence'
-          type: array
         phrases:
           description: Phrases
+          type: array
           items:
             $ref: '#/components/schemas/Phrase'
-          type: array
         tokens:
           description: Tokens
+          type: array
           items:
             $ref: '#/components/schemas/Token'
-          type: array
         mainSentences:
           description: Main sentences
+          type: array
           items:
             $ref: '#/components/schemas/MainSentence'
-          type: array
         mainPhrases:
           description: Main phrases
+          type: array
           items:
             $ref: '#/components/schemas/MainPhrase'
-          type: array
         mainLemmas:
           description: Main lemmas
+          type: array
           items:
             $ref: '#/components/schemas/MainLemma'
-          type: array
         mainSyncons:
           description: Main syncons
+          type: array
           items:
             $ref: '#/components/schemas/MainSyncon'
-          type: array
         entities:
           description: Entities
+          type: array
           items:
             $ref: '#/components/schemas/Entity'
-          type: array
         topics:
           description: Knowledge Graph topics
+          type: array
           items:
             $ref: '#/components/schemas/DocumentTopic'
-          type: array
         knowledge:
           description: Knowledge Graph syncons data
+          type: array
           items:
             $ref: '#/components/schemas/KnowledgeEntry'
+        sentiment:
+          description: Sentiment
+          properties:
+            overall:
+              description: Overall text sentiment score
+              type: number
+              format: float;
+              minimum: -1.0
+              maximum: 1.0
+            negativity:
+              description: Text negativity
+              type: number
+              format: float
+              minimum: -1.0
+              maximum: 1.0
+            positivity:
+              description: Text positivity
+              type: number
+              format: float
+              minimum: -1.0
+              maximum: 1.0
+            items:
+              description: Items expressing sentiment
+              type: array
+              items:
+                $ref: '#/components/schemas/SentimentItem'
+        relations:
+          description: Verb-mediated relations
           type: array
+          items:
+            $ref: '#/components/schemas/Relation'
     Paragraph:
       description: Paragraph info
-      example:
-        sentences:
-          - 1
-          - 1
-        start: 0
-        end: 6
       properties:
         start:
           description: Zero-based position of the first character of the paragraph
@@ -889,21 +503,14 @@ components:
           description: >-
             Indexes (in the `sentences` array) of the sentences that make up the
             paragraph
+          type: array
           items:
             description: Sentence index
             format: int32
             type: integer
-          type: array
           uniqueItems: true
-      type: object
     Sentence:
       description: Sentence info
-      example:
-        start: 5
-        end: 5
-        phrases:
-          - 2
-          - 2
       properties:
         start:
           description: Zero-based position of the first character of the sentence
@@ -917,22 +524,14 @@ components:
           description: >-
             Indexes (in the `phrases` array) of the phrases that make up the
             sentence
+          type: array
           items:
             description: Phrase index
             format: int32
             type: integer
-          type: array
           uniqueItems: true
-      type: object
     Phrase:
       description: Phrase info
-      example:
-        start: 7
-        end: 9
-        tokens:
-          - 3
-          - 3
-        type: AP
       properties:
         start:
           description: Zero-based position of the first character of the phrase
@@ -946,11 +545,11 @@ components:
           description: >-
             Indexes (in the `tokens` array) of the tokens that make up the
             phrase
+          type: array
           items:
             description: Token index
             format: int32
             type: integer
-          type: array
           uniqueItems: true
         type:
           description: Phrase type
@@ -966,36 +565,8 @@ components:
             - RP
             - VP
           type: string
-      type: object
     Token:
       description: Token info
-      example:
-        sentence: 1
-        paragraph: 7
-        syncon: 7
-        morphology: morphology
-        dependency:
-          head: 1
-          id: 1
-          label: acl
-        vsyn:
-          parent: 9
-          id: 5
-        start: 2
-        lemma: lemma
-        type: type
-        atoms:
-          - start: 1
-            lemma: lemma
-            end: 6
-            type: type
-          - start: 1
-            lemma: lemma
-            end: 6
-            type: type
-        phrase: 4
-        pos: ADJ
-        end: 4
       properties:
         start:
           description: Zero-based position of the first character of the token
@@ -1035,7 +606,7 @@ components:
           description: Lemma
           type: string
         syncon:
-          description: Syncon ID used to look up syncon data in the `knowledge` array
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
           format: int64
           type: integer
         morphology:
@@ -1048,9 +619,9 @@ components:
           $ref: '#/components/schemas/Dependency'
         atoms:
           description: Atoms that make up the token
+          type: array
           items:
             $ref: '#/components/schemas/Atom'
-          type: array
         paragraph:
           description: Paragraph index in the `paragraphs` array
           format: int64
@@ -1064,15 +635,9 @@ components:
           format: int64
           type: integer
         vsyn:
-          $ref: '#/components/schemas/Token_vsyn'
-      type: object
+          $ref: '#/components/schemas/VirtualSyncon'
     Atom:
       description: Atom info
-      example:
-        start: 1
-        lemma: lemma
-        end: 6
-        type: type
       properties:
         start:
           description: Zero-based position of the first character of the atom
@@ -1088,14 +653,8 @@ components:
         lemma:
           description: Lemma
           type: string
-      type: object
     MainSentence:
       description: Main sentence
-      example:
-        score: 93.6931
-        start: 6
-        end: 8
-        value: value
       properties:
         value:
           description: Sentence text
@@ -1114,17 +673,8 @@ components:
           description: Zero-based position of the first character after the sentence
           format: int64
           type: integer
-      type: object
     MainPhrase:
       description: Main phrase info
-      example:
-        score: 90.18348
-        positions:
-          - start: 6
-            end: 3
-          - start: 6
-            end: 3
-        value: value
       properties:
         value:
           description: Phrase text
@@ -1137,20 +687,11 @@ components:
           type: number
         positions:
           description: Positions of phrase occurrences
+          type: array
           items:
             $ref: '#/components/schemas/DocumentPosition'
-          type: array
-      type: object
     MainLemma:
       description: Main lemma info
-      example:
-        score: 69.65118
-        positions:
-          - start: 6
-            end: 3
-          - start: 6
-            end: 3
-        value: value
       properties:
         value:
           description: Lemma
@@ -1163,25 +704,19 @@ components:
           type: number
         positions:
           description: Positions of lemma occurrences
+          type: array
           items:
             $ref: '#/components/schemas/DocumentPosition'
-          type: array
-      type: object
     MainSyncon:
       description: Main syncon info
-      example:
-        score: 28.841621
-        syncon: 1
-        positions:
-          - start: 6
-            end: 3
-          - start: 6
-            end: 3
       properties:
         syncon:
-          description: Syncon ID used to look up syncon data in the `knowledge` array
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
           format: int64
           type: integer
+        lemma:
+          description: Lemma
+          type: string
         score:
           description: Score assigned to the syncon to represent its relevance
           format: float
@@ -1190,21 +725,11 @@ components:
           type: number
         positions:
           description: Positions of the expressions of the syncon
+          type: array
           items:
             $ref: '#/components/schemas/DocumentPosition'
-          type: array
-      type: object
     Entity:
       description: Entity info
-      example:
-        syncon: 6
-        lemma: lemma
-        positions:
-          - start: 6
-            end: 3
-          - start: 6
-            end: 3
-        type: ADR
       properties:
         type:
           description: Entity type
@@ -1241,22 +766,27 @@ components:
           description: Base form (lemma) of the entity name
           type: string
         syncon:
-          description: Syncon ID
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
           format: int64
           type: integer
         positions:
           description: Positions of the entity's mentions
+          type: array
           items:
             $ref: '#/components/schemas/DocumentPosition'
+        relevance:
+          description: Entity relevance
+          format: int64
+          type: integer
+          minimum: 1
+          maximum: 15
+        atttibutes:
+          description: Entity attributes inferred from the context or from the Knowledge Graph
           type: array
-      type: object
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
     DocumentTopic:
       description: Knowledge Graph topic info
-      example:
-        score: 59.448956
-        winner: true
-        id: 6
-        label: label
       properties:
         id:
           description: Language-independent topic ID
@@ -1274,12 +804,8 @@ components:
         winner:
           description: True if the topic is deemed particularly relevant
           type: boolean
-      type: object
     Property:
       description: Syncon property
-      example:
-        type: type
-        value: value
       properties:
         type:
           description: Property type
@@ -1287,13 +813,8 @@ components:
         value:
           description: Property value
           type: string
-      type: object
     Dependency:
       description: Dependency info
-      example:
-        head: 1
-        id: 1
-        label: acl
       properties:
         id:
           description: Zero-based cardinal number of the token
@@ -1359,17 +880,8 @@ components:
             - vocative
             - xcomp
           type: string
-      type: object
     KnowledgeEntry:
       description: Knowledge Graph data for a syncon
-      example:
-        label: label
-        syncon: 6
-        properties:
-          - type: type
-            value: value
-          - type: type
-            value: value
       properties:
         syncon:
           description: Syncon ID
@@ -1380,133 +892,150 @@ components:
           type: string
         properties:
           description: Syncon extended properties
+          type: array
           items:
             $ref: '#/components/schemas/Property'
+    SentimentItem:
+      description: Item or chain of items expressing sentiment
+      properties:
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        sentiment:
+          description: Item/chain sentiment score
+          type: number
+          format: float
+          minimum: -1.0
+          maximum: 1.0
+        items:
+          description: Items expressing sentiment
           type: array
-      type: object
+          items:
+            $ref: '#/components/schemas/SentimentItem'
+    Relation:
+      description: Verb-mediated relation
+      properties:
+        verb:
+          $ref: '#/components/schemas/RelationVerb'
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+        related:
+          description: Related items
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedItem'
+    RelationVerb:
+      description: Verb of a relation
+      properties:
+        text:
+          description: Verb text
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        type:
+          description: Type
+          type: string
+        relevance:
+          description: Relevance
+          format: int64
+          type: integer
+          minimum: 1
+          maximum: 15
+    RelatedItem:
+      description: In a relation, a term that's directly or indirectly related to the verb
+      properties:
+        relation:
+          description: Verb-item relation
+          type: string
+        text:
+          description: Item text
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        type:
+          description: Type
+          type: string
+        relevance:
+          description: Relevance
+          format: int64
+          type: integer
+          minimum: 1
+          maximum: 15
+        related:
+          description: Related terms
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedItem'
+    InferredAttribute:
+      description: Inferred attribute
+      properties:
+        attribute:
+          description: Attribute name
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          type: integer
+          format: int64
+        type:
+          description: Concept type
+          type: string  
+        attributes:
+          description: Attribute's attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'        
     CategorizeResponse:
-      description: Categorize resource response
-      example:
-        data:
-          language: en
-          categories:
-            - score: 0
-              winner: true
-              hierarchy:
-                - hierarchy
-                - hierarchy
-              namespace: namespace
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              id: id
-              label: label
-              frequency: 60.274563
-            - score: 0
-              winner: true
-              hierarchy:
-                - hierarchy
-                - hierarchy
-              namespace: namespace
-              positions:
-                - start: 6
-                  end: 3
-                - start: 6
-                  end: 3
-              id: id
-              label: label
-              frequency: 60.274563
-          version: version
-        success: true
-        errors:
-          - code: code
-            message: message
-          - code: code
-            message: message
+      description: Classification resource response
       properties:
         success:
           description: Operation completed successfully (true/false)
           type: boolean
         errors:
           description: Service errors
+          type: array
           items:
             $ref: '#/components/schemas/ServiceError'
-          type: array
         data:
           $ref: '#/components/schemas/CategorizeDocument'
-      type: object
     CategorizeDocument:
       description: Categorization data
-      example:
-        language: en
-        categories:
-          - score: 0
-            winner: true
-            hierarchy:
-              - hierarchy
-              - hierarchy
-            namespace: namespace
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            id: id
-            label: label
-            frequency: 60.274563
-          - score: 0
-            winner: true
-            hierarchy:
-              - hierarchy
-              - hierarchy
-            namespace: namespace
-            positions:
-              - start: 6
-                end: 3
-              - start: 6
-                end: 3
-            id: id
-            label: label
-            frequency: 60.274563
-        version: version
       properties:
         version:
           description: Service version
           type: string
         language:
           description: Text language
-          enum:
-            - en
-            - it
-            - fr
-            - es
-            - de
           type: string
         categories:
           description: Categories
+          type: array
           items:
             $ref: '#/components/schemas/Category'
-          type: array
-      type: object
     Category:
       description: Category
-      example:
-        score: 0
-        winner: true
-        hierarchy:
-          - hierarchy
-          - hierarchy
-        namespace: namespace
-        positions:
-          - start: 6
-            end: 3
-          - start: 6
-            end: 3
-        id: id
-        label: label
-        frequency: 60.274563
       properties:
         id:
           description: Category ID
@@ -1516,9 +1045,9 @@ components:
           type: string
         hierarchy:
           description: Hierarchical path
+          type: array
           items:
             type: string
-          type: array
         score:
           description: Score assigned to the category to represent its relevance
           format: int32
@@ -1542,53 +1071,84 @@ components:
           description: >-
             Positions of the portions of text that contributed to the selection
             of the category
+          type: array
           items:
             $ref: '#/components/schemas/DocumentPosition'
-          type: array
-      type: object
-    TaxonomiesResponse_taxonomies:
-      description: List of taxonomies
-      properties:
-        iptc:
-          $ref: '#/components/schemas/Iptc'      
-    TaxonomiesIptcResponse_taxonomies:
-      description: List of taxonomies
-      properties:
-        iptc:
-          $ref: '#/components/schemas/Iptc'
-    Standard_languages:
+    ContextInfo:
+      description: Summary information about a context
       properties:
         name:
-          description: Language code
-          enum:
-            - en
-            - es
-            - it
-            - de
-            - fr
+          description: Context name
           type: string
         description:
-          description: Language description
-          enum:
-            - English
-            - Spanish
-            - Italian
-            - German
-            - French
+          description: Context description
           type: string
-    Token_vsyn:
-      description: Virtual syncon data
-      example:
-        parent: 9
-        id: 5
+        analyses:
+          description: Information about available analyses
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisInfo'
+    TaxonomyInfo:
+      description: Summary information about a taxonomy
+      properties:
+        name:
+          description: Taxonomy name
+          type: string
+        description:
+          description: Taxonomy description
+          type: string
+        languages:
+          description: Supported languages
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageInfo'
+    TaxonomyCategory:
+      description: Taxonomy category
+      properties:
+        name:
+          description: Category name
+          type: string
+        description:
+          description: Category description
+          type: string
+        children:
+          description: Sub-categories
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyCategory'
+    AnalysisInfo:
+      description: Information about a context analysis
+      properties:
+        name:
+          description: Name
+          type: string
+        description:
+          description: Description
+          type: string
+        languages:
+          description: Supported languages
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageInfo' 
+    LanguageInfo:
+      description: Information about a supported language
+      properties:
+        code:
+          description: Language code
+          type: string
+        name:
+          description: Language name
+          type: string
+    VirtualSyncon:
+      description: A concept that does not exist in the Knowledge Graph but heuristics recognized as a type of a known parent concept.
       properties:
         id:
-          description: Virtual syncon ID
+          description: ID used to mark all the occurrences of the virtual concept in the text
           format: int64
           type: integer
         parent:
           description: >-
-            Parent syncon ID used to look up syncon data in the `knowledge`
+            Parent concept; ID is used to look up Knowledge Graph data in the `knowledge`
             array
           format: int64
           type: integer
