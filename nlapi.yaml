@@ -1105,11 +1105,11 @@ components:
     TaxonomyCategory:
       description: Taxonomy category
       properties:
-        name:
-          description: Category name
+        id:
+          description: Category ID
           type: string
-        description:
-          description: Category description
+        label:
+          description: Category label
           type: string
         children:
           description: Sub-categories
