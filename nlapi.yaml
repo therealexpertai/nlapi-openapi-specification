@@ -35,8 +35,6 @@ tags:
     name: Contexts
   - description: Taxonomies info API endpoints
     name: Taxonomies
-  - description: Verticals info API endpoints
-    name: Verticals
 paths:
   /analyze/{context}/{language}:
     post:
@@ -303,26 +301,6 @@ paths:
       summary: Taxonomy tree
       tags:
         - Taxonomies
-  /verticals:
-    description: Information about available verticals
-    get:
-      description: Information about available verticals
-      responses:
-        '200':
-          $ref: '#/components/responses/200Verticals'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: Not Found
-        '500':
-          description: Internal Server Error
-      security:
-        - bearerAuth: []
-      summary: Verticals information
-      tags:
-        - Verticals
 components:
   responses:
     200Analyze:
@@ -355,12 +333,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/TaxonomyResponse'
-    200Verticals:
-      description: Resource response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/VerticalsResponse'
   schemas:
     ContextsResponse:
       description: Available contexts
@@ -387,11 +359,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Taxonomy'
-    VerticalsResponse:
-      description: Available verticals
-      type: array
-      items:
-        $ref: '#/components/schemas/VerticalInfo'
     AnalysisRequest:
       description: Request
       properties:
@@ -1144,22 +1111,8 @@ components:
         description:
           description: Taxonomy description
           type: string
-        languages:
-          description: Supported languages
-          type: array
-          items:
-            $ref: '#/components/schemas/LanguageInfo'
-    VerticalInfo:
-      description: Summary information about a vertical
-      properties:
-        name:
-          description: Vertical name
-          type: string
-        description:
-          description: Vertical description
-          type: string
         contract:
-          description: OpenAPI document describing the vertical's programmatic interface
+          description: OpenAPI document describing extra ways to use the taxonomy and their outputs
           type: string
         languages:
           description: Supported languages
