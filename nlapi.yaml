@@ -644,8 +644,6 @@ components:
           description: Phrase index in the `phrases` array
           format: int64
           type: integer
-        vsyn:
-          $ref: '#/components/schemas/VirtualSyncon'
     Atom:
       description: Atom info
       properties:
@@ -915,8 +913,6 @@ components:
           description: ID used to look up Knowledge Graph data in the `knowledge` array
           format: int64
           type: integer
-        vsyn:
-          $ref: '#/components/schemas/VirtualSyncon'
         sentiment:
           description: Item/chain sentiment score
           type: number
