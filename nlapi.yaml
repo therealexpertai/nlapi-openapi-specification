@@ -41,15 +41,12 @@ paths:
       description: Full analysis (i.e., sum of all available analyses) of the posted text
       parameters:
         - description: Context name; use the `contexts` resource to discover available contexts
-          explode: false
           in: path
           name: context
           required: true
           schema:
             type: string
-          style: simple
         - description: Document language (code)
-          explode: false
           in: path
           name: language
           required: true
@@ -61,7 +58,6 @@ paths:
               - es
               - fr
               - it
-          style: simple
       requestBody:
         content:
           application/json:
@@ -104,15 +100,12 @@ paths:
         </ul>
       parameters:
         - description: Context name; use the `contexts` resource to discover available contexts
-          explode: false
           in: path
           name: context
           required: true
           schema:
             type: string
-          style: simple
         - description: Document language (code)
-          explode: false
           in: path
           name: language
           required: true
@@ -124,9 +117,7 @@ paths:
               - es
               - fr
               - it
-          style: simple
         - description: Analysis name; use the `contexts` resource to determine if the context provides that analysis for the chosen language
-          explode: false
           in: path
           name: analysis
           required: true
@@ -138,7 +129,6 @@ paths:
               - sentiment
               - relations
             type: string
-          style: simple
       requestBody:
         content:
           application/json:
@@ -172,15 +162,12 @@ paths:
       description: Classification of the posted text
       parameters:
         - description: Taxonomy name; use the `taxonomies` resource to discover available taxonomies
-          explode: false
           in: path
           name: taxonomy
           required: true
           schema:
             type: string
-          style: simple
-        - description: Document language (code); use the `taxonomies` resource to discover the languages that the taxonomy supports
-          explode: false
+        - description: Document language (code); use the `taxonomies` resource to discover the languages for which the taxonomy is available
           in: path
           name: language
           required: true
@@ -192,7 +179,6 @@ paths:
               - es
               - fr
               - it
-          style: simple
       requestBody:
         content:
           application/json:
@@ -264,15 +250,12 @@ paths:
       description: Detailed information about a taxonomy for a given language
       parameters:
         - description: Taxonomy name
-          explode: false
           in: path
           name: taxonomy
           required: true
           schema:
             type: string         
-          style: simple
         - description: Taxonomy language (code); use the `taxonomies` resource to discover the languages that the taxonomy supports
-          explode: false
           in: path
           name: language
           required: true
@@ -284,7 +267,6 @@ paths:
               - es
               - fr
               - it
-          style: simple
       responses:
         '200':
           $ref: '#/components/responses/200Taxonomy'

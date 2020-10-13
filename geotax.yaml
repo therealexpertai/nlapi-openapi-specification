@@ -1,41 +1,41 @@
 openapi: 3.0.3
 info:
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: 'https://expert.ai/'
   description: >
-    GeoTax classification Api and geojson response
-  title: Geotax Classification API
-  name: geotax
+    The GeoTax document classification module of the expert.ai Natural Language API detects the citations of geographic places in a text and returns the corresponding countries.<br />
+    The Natural Language API has its general contract (https://github.com/therealexpertai/nlapi-openapi-specification/blob/master/nlapi.yaml) specifying how to use the classification module to obtain countries' names a categories; this specific sub-contract specifies how to use the same classification module to obtain equivalent GeoJOSN data that can be used in a GIS (Geographic Information System), for example to highlight in a map the countries the text is about.
+  title: expert.ai Natural Language API - GeoJSON classification
   version: v2
 servers:
   - url: 'https://nlapi.expert.ai/v2'
 paths:
   /categorize/geotax/{language}:
     post:
-      description: Classification of the posted text with geojson
+      description: GeoJSON classification of the posted text
       parameters:
-       - description: Document language (code); use the `taxonomies` resource to discover the languages that the taxonomy supports
-          explode: false
-          in: path
-          name: language
-          required: true
-          schema:
-            type: string
-            enum:
-              - de
-              - en
-              - es
-              - fr
-              - it
-          style: simple
-       - description: Document features
-          explode: false
-          in: query
-          name: features
-          required: false
-          schema:
-            type: string
-            enum:
-              - extradata
-          style: simple
+       - description: Document language (code); use the `taxonomies` resource of the expert.ai Natural Language API to discover the languages that the classification module supports
+         in: path
+         name: language
+         required: true
+         schema:
+           type: string
+           enum:
+             - de
+             - en
+             - es
+             - fr
+             - it
+       - description: Classification features, specify `extradata` to obtain GeoJSON data
+         in: query
+         name: features
+         required: true
+         schema:
+           type: string
+           enum:
+             - extradata
       requestBody:
         content:
           application/json:
@@ -67,7 +67,7 @@ paths:
 components:
   schemas:
     GeoTaxResponse:
-      description: Geotax resource response
+      description: Resource response
       properties:
         success:
           description: Operation completed successfully (true/false)
@@ -79,12 +79,8 @@ components:
             $ref: '#/components/schemas/ServiceError'
         data:
           $ref: '#/components/schemas/GeoTaxDocument'
-    ExtraData:
-      description: ExtraData geojson field
-      properties:
-         geojson: $ref: '#/components/schemas/geoJsonBase'
     GeoTaxDocument:
-      description: Geotax response
+      description: Classification results
       properties:
         version:
           description: Service version
@@ -97,8 +93,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Category'
-        extradata:
-          $ref: '#/components/schemas/ExtraData'
+        extraData:
+          description: Extra-data containing GeoJSON data
+          properties:
+            geojson:
+              $ref: '#/components/schemas/geoJsonBase'
     geoJsonBase:
         description: >
           This schema is solely an abstract definition to share the common GeoJSON
@@ -456,9 +455,7 @@ components:
       type: string
       oneOf:
         - $ref: '#/components/schemas/geometryType'
-        - $ref: '#/components/schemas/containerType'
-
-        
+        - $ref: '#/components/schemas/containerType'     
     AnalysisRequest:
       description: Request
       properties:
