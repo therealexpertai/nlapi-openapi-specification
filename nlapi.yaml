@@ -318,14 +318,20 @@ components:
   schemas:
     ContextsResponse:
       description: Available contexts
-      type: array
-      items:
-        $ref: '#/components/schemas/ContextInfo'
+      properties:
+        contexts:
+          description: List of contexts' information
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextInfo'
     TaxonomiesResponse:
       description: Available taxonomies
-      type: array
-      items:
-        $ref: '#/components/schemas/TaxonomyInfo'
+      properties:
+        texonomies:
+          description: List of taxonomies' information
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyInfo'
     TaxonomyResponse:
       description: Taxonomy categories
       properties:
