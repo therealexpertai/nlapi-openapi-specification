@@ -462,20 +462,14 @@ components:
               description: Overall text sentiment score
               type: number
               format: float;
-              minimum: -1.0
-              maximum: 1.0
             negativity:
               description: Text negativity
               type: number
               format: float
-              minimum: -1.0
-              maximum: 1.0
             positivity:
               description: Text positivity
               type: number
               format: float
-              minimum: -1.0
-              maximum: 1.0
             items:
               description: Items expressing sentiment
               type: array
@@ -551,17 +545,6 @@ components:
           uniqueItems: true
         type:
           description: Phrase type
-          enum:
-            - AP
-            - CP
-            - CR
-            - DP
-            - NA
-            - NP
-            - PN
-            - PP
-            - RP
-            - VP
           type: string
     Token:
       description: Token info
@@ -581,24 +564,6 @@ components:
           description: >-
             <a href='https://universaldependencies.org/u/pos/'>Universal
             Dependencies part-of-speech tag</a>
-          enum:
-            - ADJ
-            - ADP
-            - ADV
-            - AUX
-            - CCONJ
-            - DET
-            - INTJ
-            - NOUN
-            - NUM
-            - PART
-            - PRON
-            - PROPN
-            - PUNCT
-            - SCONJ
-            - SYM
-            - VERB
-            - X
           type: string
         lemma:
           description: Lemma
@@ -658,8 +623,6 @@ components:
         score:
           description: Score assigned to the sentence to represent its relevance
           format: float
-          maximum: 100
-          minimum: 0
           type: number
         start:
           description: Zero-based position of the first character of the sentence
@@ -678,8 +641,6 @@ components:
         score:
           description: Score assigned to the phrase to represent its relevance
           format: float
-          maximum: 100
-          minimum: 0
           type: number
         positions:
           description: Positions of phrase occurrences
@@ -695,8 +656,6 @@ components:
         score:
           description: Score assigned to the lemma to represent its relevance
           format: float
-          maximum: 100
-          minimum: 0
           type: number
         positions:
           description: Positions of lemma occurrences
@@ -716,8 +675,6 @@ components:
         score:
           description: Score assigned to the syncon to represent its relevance
           format: float
-          maximum: 100
-          minimum: 0
           type: number
         positions:
           description: Positions of the expressions of the syncon
@@ -729,34 +686,6 @@ components:
       properties:
         type:
           description: Entity type
-          enum:
-            - ADR
-            - ANM
-            - BLD
-            - COM
-            - DAT
-            - DEV
-            - DOC
-            - EVN
-            - FDD
-            - GEA
-            - GEO
-            - GEX
-            - HOU
-            - LEN
-            - MAI
-            - MEA
-            - MMD
-            - MON
-            - NPH
-            - ORG
-            - PCT
-            - PHO
-            - PPH
-            - PRD
-            - VCL
-            - WEB
-            - WRK
           type: string
         lemma:
           description: Base form (lemma) of the entity name
@@ -774,9 +703,7 @@ components:
           description: Entity relevance
           format: int64
           type: integer
-          minimum: 1
-          maximum: 15
-        atttibutes:
+        attributes:
           description: Entity attributes inferred from the context or from the Knowledge Graph
           type: array
           items:
@@ -794,8 +721,6 @@ components:
         score:
           description: Score assigned to the topic to represent its relevance
           format: float
-          maximum: 100
-          minimum: 0
           type: number
         winner:
           description: True if the topic is deemed particularly relevant
@@ -826,55 +751,6 @@ components:
             href='https://universaldependencies.org/u/dep/#universal-dependency-relations'
             target='_blank'>Dependency relation</a> between the token and the
             head token
-          enum:
-            - acl
-            - 'acl:relcl'
-            - advcl
-            - advmod
-            - amod
-            - appos
-            - aux
-            - 'aux:pass'
-            - 'aux:tense'
-            - case
-            - cc
-            - ccomp
-            - clf
-            - compound
-            - 'compound:prt'
-            - conj
-            - cop
-            - csubj
-            - dep
-            - det
-            - 'det:predet'
-            - 'det:poss'
-            - discourse
-            - dislocated
-            - expl
-            - 'expl:pass'
-            - 'expl:impers'
-            - fixed
-            - flat
-            - goeswith
-            - iobj
-            - list
-            - mark
-            - nmod
-            - 'nmod:poss'
-            - nsubj
-            - 'nsubj:pass'
-            - nummod
-            - obj
-            - obl
-            - 'obl:tmod'
-            - orphan
-            - parataxis
-            - punct
-            - reparandum
-            - root
-            - vocative
-            - xcomp
           type: string
     KnowledgeEntry:
       description: Knowledge Graph data for a syncon
@@ -905,8 +781,6 @@ components:
           description: Item/chain sentiment score
           type: number
           format: float
-          minimum: -1.0
-          maximum: 1.0
         items:
           description: Items expressing sentiment
           type: array
@@ -946,8 +820,6 @@ components:
           description: Relevance
           format: int64
           type: integer
-          minimum: 1
-          maximum: 15
     RelatedItem:
       description: In a relation, a term that's directly or indirectly related to the verb
       properties:
@@ -977,8 +849,6 @@ components:
           description: Relevance
           format: int64
           type: integer
-          minimum: 1
-          maximum: 15
         related:
           description: Related terms
           type: array
@@ -998,7 +868,7 @@ components:
           type: integer
           format: int64
         type:
-          description: Concept type
+          description: Attribute type
           type: string  
         attributes:
           description: Attribute's attributes
@@ -1049,7 +919,6 @@ components:
         score:
           description: Score assigned to the category to represent its relevance
           format: int32
-          minimum: 0
           type: integer
         winner:
           description: True if the category is deemed particularly relevant
@@ -1062,8 +931,6 @@ components:
             Score expressed as a percentage of the sum of the scores of all the
             candidate categories, winners and not (see the **score** property)
           format: float
-          maximum: 100
-          minimum: 0
           type: number
         positions:
           description: >-
