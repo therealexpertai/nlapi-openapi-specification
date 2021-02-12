@@ -575,6 +575,8 @@ components:
           description: ID used to look up Knowledge Graph data in the `knowledge` array
           format: int64
           type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'          
         morphology:
           description: >-
             A semicolon separated list of <a
