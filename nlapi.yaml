@@ -397,6 +397,9 @@ components:
         version:
           description: Service version
           type: string
+        content:
+          description: Analyzed text
+          type: string
         language:
           description: Text language
           type: string
