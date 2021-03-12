@@ -396,9 +396,9 @@ components:
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
-            "iban":
+            "IBAN":
               type: string
-            "ibanCountry":
+            "IBANcountry":
               type: string
     "PIIFinancialProduct":
       description: "Credit card"
@@ -407,7 +407,7 @@ components:
         - properties:
             "creditDebitNumber":
               type: string
-            "cvv":
+            "CVV":
               type: string
             "expirationDate":
               type: string
@@ -430,14 +430,14 @@ components:
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
-            "url":
+            "URL":
               type: string
     "PIIIP":
       description: "Internet Protocol (IP) address"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
-            "ip":
+            "IP":
               type: string
     "PIIItem":
       description: "Personally Identifiable Information (PII) item"
@@ -518,7 +518,7 @@ components:
                   description: "JSON-LD format output"
                   properties:
                     "@context":
-                      description: "JSON-LB context"
+                      description: "JSON-LD context"
                       properties:
                         "@version":
                           type: string
@@ -538,21 +538,23 @@ components:
                           type: string
                         "additionalProperty":
                           type: string
-                        "url":
+                        "URL":
                           type: string
-                        "ip":
+                        "IP":
                           type: string
                         "type":
                           type: string
                         "email":
                           type: string
-                        "ibanCountry":
+                        "IBAN":
+                          type: string
+                        "IBANcountry":
                           type: string
                         "postalAddress":
                           type: string
                         "creditDebitNumber":
                           type: string
-                        "cvv":
+                        "CVV":
                           type: string
                         "expirationDate":
                           type: string
