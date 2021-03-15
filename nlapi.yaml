@@ -8,16 +8,24 @@ info:
     Natural Language API provides a comprehensive set of natural language
     understanding capabilities based on expert.ai technology:
     <ul>
-      <li>Text subdivision</li>
-      <li>Part-of-speech tagging</li>
-      <li>Syntactic analysis</li>
-      <li>Lemmatization</li>
-      <li>Keyphrase extraction</li>
-      <li>Semantic analysis</li>
-      <li>Named entity recognition</li>
-      <li>Relation extraction</li>
-      <li>Sentiment analysis</li>
-      <li>Classification</li>
+      <li>Context based document analysis, comprising:</li>
+      <ul>
+        <li>Deep linguistic analysis, which, in turn, comprises:</li>
+        <ul>
+          <li>Text subdivision</li>
+          <li>Part-of-speech tagging</li>
+          <li>Morphological analysis</li>
+          <li>Lemmatization</li>
+          <li>Syntactic analysis</li>
+          <li>Semantic analysis</li>
+        </ul>
+        <li>Keyphrase extraction</li>
+        <li>Named entity recognition</li>
+        <li>Relation extraction</li>
+        <li>Sentiment analysis</li>
+      </ul>
+      <li>Taxonomy based document classification</li>
+      <li>Information detection performed by detectors</li>
     </ul>
   title: expert.ai Natural Language API
   version: v2
@@ -27,18 +35,16 @@ externalDocs:
 servers:
   - url: 'https://nlapi.expert.ai/v2'
 tags:
-  - description: Analysis API endpoints
-    name: Document Analysis
-  - description: Classification API endpoints
-    name: Document Classification
-  - description: Contexts info API endpoints
-    name: Contexts
-  - description: Taxonomies info API endpoints
-    name: Taxonomies
+  - description: Document analysis API endpoints
+    name: Document analysis
+  - description: Document classification API endpoints
+    name: Document classification
+  - description: Information detection API endpoints
+    name: Information detection
 paths:
   /analyze/{context}/{language}:
     post:
-      description: Full analysis (i.e., sum of all available analyses) of the posted text
+      description: Full analysis (i.e., sum of all available partial analyses) of the posted text
       parameters:
         - description: Context name; use the `contexts` resource to discover available contexts
           in: path
@@ -85,7 +91,7 @@ paths:
         - bearerAuth: []
       summary: Full analysis
       tags:
-        - Document Analysis
+        - Document analysis
   /analyze/{context}/{language}/{analysis}:
     post:
       description: |
@@ -154,9 +160,9 @@ paths:
           description: Internal Server Error
       security:
         - bearerAuth: []
-      summary: Specific analysis
+      summary: Specific partial analysis
       tags:
-        - Document Analysis
+        - Document analysis
   /categorize/{taxonomy}/{language}:
     post:
       description: Classification of the posted text
@@ -206,7 +212,7 @@ paths:
         - bearerAuth: []
       summary: Classification
       tags:
-        - Document Classification
+        - Document classification
   /contexts:
     get:
       description: Information about available contexts
@@ -225,7 +231,7 @@ paths:
         - bearerAuth: []
       summary: Contexts information
       tags:
-        - Contexts
+        - Document analysis
   /taxonomies:
     get:
       description: Information about available taxonomies
@@ -244,7 +250,7 @@ paths:
         - bearerAuth: []
       summary: Taxonomies information
       tags:
-        - Taxonomies
+        - Document classification
   /taxonomies/{taxonomy}/{language}:
     get:
       description: Detailed information about a taxonomy for a given language
@@ -282,7 +288,72 @@ paths:
         - bearerAuth: []
       summary: Taxonomy tree
       tags:
-        - Taxonomies
+        - Document classification
+  /detect/{detector}/{language}:
+    post:
+      description: Information detection on the posted text
+      parameters:
+        - description: Detector name; use the `detectors` resource to discover available detectors
+          in: path
+          name: detector
+          required: true
+          schema:
+            type: string
+        - description: Document language (code); use the `detectors` resource to discover the languages for which the detector is available
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document on which to perform information detection
+      responses:
+        '200':
+          description: Resource response
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Information detection
+      tags:
+        - Information detection
+  /detectors:
+    get:
+      description: Information about available detectors
+      responses:
+        '200':
+          $ref: '#/components/responses/200Detectors'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Detectors information
+      tags:
+        - Information detection
 components:
   responses:
     200Analyze:
@@ -291,18 +362,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/AnalyzeResponse'
-    200Categorize:
-      description: Resource response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CategorizeResponse'
     200Contexts:
       description: Resource response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ContextsResponse'
+    200Categorize:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CategorizeResponse'
     200Taxonomies:
       description: Resource response
       content:
@@ -315,49 +386,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/TaxonomyResponse'
+    200Detectors:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DetectorsResponse'
   schemas:
-    ContextsResponse:
-      description: Available contexts
-      properties:
-        contexts:
-          description: List of contexts' information
-          type: array
-          items:
-            $ref: '#/components/schemas/ContextInfo'
-    TaxonomiesResponse:
-      description: Available taxonomies
-      properties:
-        texonomies:
-          description: List of taxonomies' information
-          type: array
-          items:
-            $ref: '#/components/schemas/TaxonomyInfo'
-    TaxonomyResponse:
-      description: Taxonomy categories
-      properties:
-        success:
-          description: Operation completed successfully (true/false)
-          type: boolean
-        errors:
-          description: Service errors
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceError'
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Taxonomy'
-    AnalysisRequest:
-      description: Request
-      properties:
-        document:
-          $ref: '#/components/schemas/Document'
-    Document:
-      description: Document
-      properties:
-        text:
-          description: The document's text
-          type: string
     DocumentPosition:
       description: Position
       properties:
@@ -369,28 +404,427 @@ components:
           description: Zero-based position of the character after the last
           format: int64
           type: integer
-    ServiceError:
-      description: Error information
+    VirtualSyncon:
+      description: A concept that does not exist in the Knowledge Graph but heuristics recognized as a type of a known parent concept.
       properties:
-        code:
-          description: Error code
-          type: string
-        message:
-          description: Error message
-          type: string
-    AnalyzeResponse:
-      description: Analysis resource response
+        id:
+          description: ID used to mark all the occurrences of the virtual concept in the text
+          format: int64
+          type: integer
+        parent:
+          description: >-
+            Parent concept; ID is used to look up Knowledge Graph data in the `knowledge`
+            array
+          format: int64
+          type: integer
+    Atom:
+      description: Atom info
       properties:
-        success:
-          description: Operation completed successfully (true/false)
-          type: boolean
-        errors:
-          description: Service errors
+        start:
+          description: Zero-based position of the first character of the atom
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the atom
+          format: int64
+          type: integer
+        type:
+          description: Cogito type
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+    Dependency:
+      description: Dependency info
+      properties:
+        id:
+          description: Zero-based cardinal number of the token
+          format: int64
+          type: integer
+        head:
+          description: Number of the head token
+          format: int64
+          type: integer
+        label:
+          description: >-
+            (<a
+            href='https://universaldependencies.org/u/dep/#universal-dependency-relations'
+            target='_blank'>Dependency relation</a> between the token and the
+            head token
+          type: string
+    Token:
+      description: Token info
+      properties:
+        start:
+          description: Zero-based position of the first character of the token
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the token
+          format: int64
+          type: integer
+        type:
+          description: Cogito type
+          type: string
+        pos:
+          description: >-
+            <a href='https://universaldependencies.org/u/pos/'>Universal
+            Dependencies part-of-speech tag</a>
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'          
+        morphology:
+          description: >-
+            A semicolon separated list of <a
+            href='https://universaldependencies.org/format.html#morphological-annotation'>CoNLL-U
+            format</a> morphological features
+          type: string
+        dependency:
+          $ref: '#/components/schemas/Dependency'
+        atoms:
+          description: Atoms that make up the token
           type: array
           items:
-            $ref: '#/components/schemas/ServiceError'
-        data:
-          $ref: '#/components/schemas/AnalyzeDocument'
+            $ref: '#/components/schemas/Atom'
+        paragraph:
+          description: Paragraph index in the `paragraphs` array
+          format: int64
+          type: integer
+        sentence:
+          description: Sentence index in the `sentences` array
+          format: int64
+          type: integer
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+    Phrase:
+      description: Phrase info
+      properties:
+        start:
+          description: Zero-based position of the first character of the phrase
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the phrase
+          format: int64
+          type: integer
+        tokens:
+          description: >-
+            Indexes (in the `tokens` array) of the tokens that make up the
+            phrase
+          type: array
+          items:
+            description: Token index
+            format: int32
+            type: integer
+          uniqueItems: true
+        type:
+          description: Phrase type
+          type: string
+    Sentence:
+      description: Sentence info
+      properties:
+        start:
+          description: Zero-based position of the first character of the sentence
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the sentence
+          format: int64
+          type: integer
+        phrases:
+          description: >-
+            Indexes (in the `phrases` array) of the phrases that make up the
+            sentence
+          type: array
+          items:
+            description: Phrase index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Paragraph:
+      description: Paragraph info
+      properties:
+        start:
+          description: Zero-based position of the first character of the paragraph
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the paragraph
+          format: int64
+          type: integer
+        sentences:
+          description: >-
+            Indexes (in the `sentences` array) of the sentences that make up the
+            paragraph
+          type: array
+          items:
+            description: Sentence index
+            format: int32
+            type: integer
+          uniqueItems: true
+    MainLemma:
+      description: Main lemma info
+      properties:
+        value:
+          description: Lemma
+          type: string
+        score:
+          description: Score assigned to the lemma to represent its relevance
+          format: float
+          type: number
+        positions:
+          description: Positions of lemma occurrences
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    MainSyncon:
+      description: Main syncon info
+      properties:
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        lemma:
+          description: Lemma
+          type: string
+        score:
+          description: Score assigned to the syncon to represent its relevance
+          format: float
+          type: number
+        positions:
+          description: Positions of the expressions of the syncon
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    MainPhrase:
+      description: Main phrase info
+      properties:
+        value:
+          description: Phrase text
+          type: string
+        score:
+          description: Score assigned to the phrase to represent its relevance
+          format: float
+          type: number
+        positions:
+          description: Positions of phrase occurrences
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    MainSentence:
+      description: Main sentence
+      properties:
+        value:
+          description: Sentence text
+          type: string
+        score:
+          description: Score assigned to the sentence to represent its relevance
+          format: float
+          type: number
+        start:
+          description: Zero-based position of the first character of the sentence
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the sentence
+          format: int64
+          type: integer
+    DocumentTopic:
+      description: Knowledge Graph topic info
+      properties:
+        id:
+          description: Language-independent topic ID
+          format: int64
+          type: integer
+        label:
+          description: Topic name
+          type: string
+        score:
+          description: Score assigned to the topic to represent its relevance
+          format: float
+          type: number
+        winner:
+          description: True if the topic is deemed particularly relevant
+          type: boolean
+    InferredAttribute:
+      description: Inferred attribute
+      properties:
+        attribute:
+          description: Attribute name
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          type: integer
+          format: int64
+        type:
+          description: Attribute type
+          type: string  
+        attributes:
+          description: Attribute's attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    Entity:
+      description: Entity info
+      properties:
+        type:
+          description: Entity type
+          type: string
+        lemma:
+          description: Base form (lemma) of the entity name
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        positions:
+          description: Positions of the entity's mentions
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+        relevance:
+          description: Entity relevance
+          format: int64
+          type: integer
+        attributes:
+          description: Entity attributes inferred from the context or from the Knowledge Graph
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    SentimentItem:
+      description: Item or chain of items expressing sentiment
+      properties:
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        sentiment:
+          description: Item/chain sentiment score
+          type: number
+          format: float
+        items:
+          description: Items expressing sentiment
+          type: array
+          items:
+            $ref: '#/components/schemas/SentimentItem'
+    RelationVerb:
+      description: Verb of a relation
+      properties:
+        text:
+          description: Verb text
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        type:
+          description: Type
+          type: string
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+        relevance:
+          description: Relevance
+          format: int64
+          type: integer
+    AnalysisRequest:
+      description: Request
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+    Document:
+      description: Document
+      properties:
+        text:
+          description: The document's text
+          type: string
+    Property:
+      description: Syncon property
+      properties:
+        type:
+          description: Property type
+          type: string
+        value:
+          description: Property value
+          type: string
+    KnowledgeEntry:
+      description: Knowledge Graph data for a syncon
+      properties:
+        syncon:
+          description: Syncon ID
+          format: int64
+          type: integer
+        label:
+          description: Textual rendering of the general conceptual category for the token in the Knowledge Graph
+          type: string
+        properties:
+          description: Syncon extended properties
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+    RelatedItem:
+      description: In a relation, a term that's directly or indirectly related to the verb
+      properties:
+        relation:
+          description: Verb-item relation
+          type: string
+        text:
+          description: Item text
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        type:
+          description: Type
+          type: string
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+        relevance:
+          description: Relevance
+          format: int64
+          type: integer
+        related:
+          description: Related terms
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedItem'
+    Relation:
+      description: Verb-mediated relation
+      properties:
+        verb:
+          $ref: '#/components/schemas/RelationVerb'
+        related:
+          description: Related items
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedItem'
     AnalyzeDocument:
       description: Analysis data
       properties:
@@ -483,403 +917,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Relation'
-    Paragraph:
-      description: Paragraph info
+    ServiceError:
+      description: Error information
       properties:
-        start:
-          description: Zero-based position of the first character of the paragraph
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the first character after the paragraph
-          format: int64
-          type: integer
-        sentences:
-          description: >-
-            Indexes (in the `sentences` array) of the sentences that make up the
-            paragraph
-          type: array
-          items:
-            description: Sentence index
-            format: int32
-            type: integer
-          uniqueItems: true
-    Sentence:
-      description: Sentence info
+        code:
+          description: Error code
+          type: string
+        message:
+          description: Error message
+          type: string
+    AnalyzeResponse:
+      description: Analysis resource response
       properties:
-        start:
-          description: Zero-based position of the first character of the sentence
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the first character after the sentence
-          format: int64
-          type: integer
-        phrases:
-          description: >-
-            Indexes (in the `phrases` array) of the phrases that make up the
-            sentence
-          type: array
-          items:
-            description: Phrase index
-            format: int32
-            type: integer
-          uniqueItems: true
-    Phrase:
-      description: Phrase info
-      properties:
-        start:
-          description: Zero-based position of the first character of the phrase
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the first character after the phrase
-          format: int64
-          type: integer
-        tokens:
-          description: >-
-            Indexes (in the `tokens` array) of the tokens that make up the
-            phrase
-          type: array
-          items:
-            description: Token index
-            format: int32
-            type: integer
-          uniqueItems: true
-        type:
-          description: Phrase type
-          type: string
-    Token:
-      description: Token info
-      properties:
-        start:
-          description: Zero-based position of the first character of the token
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the first character after the token
-          format: int64
-          type: integer
-        type:
-          description: Cogito type
-          type: string
-        pos:
-          description: >-
-            <a href='https://universaldependencies.org/u/pos/'>Universal
-            Dependencies part-of-speech tag</a>
-          type: string
-        lemma:
-          description: Lemma
-          type: string
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          format: int64
-          type: integer
-        vsyn:
-          $ref: '#/components/schemas/VirtualSyncon'          
-        morphology:
-          description: >-
-            A semicolon separated list of <a
-            href='https://universaldependencies.org/format.html#morphological-annotation'>CoNLL-U
-            format</a> morphological features
-          type: string
-        dependency:
-          $ref: '#/components/schemas/Dependency'
-        atoms:
-          description: Atoms that make up the token
-          type: array
-          items:
-            $ref: '#/components/schemas/Atom'
-        paragraph:
-          description: Paragraph index in the `paragraphs` array
-          format: int64
-          type: integer
-        sentence:
-          description: Sentence index in the `sentences` array
-          format: int64
-          type: integer
-        phrase:
-          description: Phrase index in the `phrases` array
-          format: int64
-          type: integer
-    Atom:
-      description: Atom info
-      properties:
-        start:
-          description: Zero-based position of the first character of the atom
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the first character after the atom
-          format: int64
-          type: integer
-        type:
-          description: Cogito type
-          type: string
-        lemma:
-          description: Lemma
-          type: string
-    MainSentence:
-      description: Main sentence
-      properties:
-        value:
-          description: Sentence text
-          type: string
-        score:
-          description: Score assigned to the sentence to represent its relevance
-          format: float
-          type: number
-        start:
-          description: Zero-based position of the first character of the sentence
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the first character after the sentence
-          format: int64
-          type: integer
-    MainPhrase:
-      description: Main phrase info
-      properties:
-        value:
-          description: Phrase text
-          type: string
-        score:
-          description: Score assigned to the phrase to represent its relevance
-          format: float
-          type: number
-        positions:
-          description: Positions of phrase occurrences
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentPosition'
-    MainLemma:
-      description: Main lemma info
-      properties:
-        value:
-          description: Lemma
-          type: string
-        score:
-          description: Score assigned to the lemma to represent its relevance
-          format: float
-          type: number
-        positions:
-          description: Positions of lemma occurrences
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentPosition'
-    MainSyncon:
-      description: Main syncon info
-      properties:
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          format: int64
-          type: integer
-        lemma:
-          description: Lemma
-          type: string
-        score:
-          description: Score assigned to the syncon to represent its relevance
-          format: float
-          type: number
-        positions:
-          description: Positions of the expressions of the syncon
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentPosition'
-    Entity:
-      description: Entity info
-      properties:
-        type:
-          description: Entity type
-          type: string
-        lemma:
-          description: Base form (lemma) of the entity name
-          type: string
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          format: int64
-          type: integer
-        positions:
-          description: Positions of the entity's mentions
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentPosition'
-        relevance:
-          description: Entity relevance
-          format: int64
-          type: integer
-        attributes:
-          description: Entity attributes inferred from the context or from the Knowledge Graph
-          type: array
-          items:
-            $ref: '#/components/schemas/InferredAttribute'
-    DocumentTopic:
-      description: Knowledge Graph topic info
-      properties:
-        id:
-          description: Language-independent topic ID
-          format: int64
-          type: integer
-        label:
-          description: Topic name
-          type: string
-        score:
-          description: Score assigned to the topic to represent its relevance
-          format: float
-          type: number
-        winner:
-          description: True if the topic is deemed particularly relevant
+        success:
+          description: Operation completed successfully (true/false)
           type: boolean
-    Property:
-      description: Syncon property
-      properties:
-        type:
-          description: Property type
-          type: string
-        value:
-          description: Property value
-          type: string
-    Dependency:
-      description: Dependency info
-      properties:
-        id:
-          description: Zero-based cardinal number of the token
-          format: int64
-          type: integer
-        head:
-          description: Number of the head token
-          format: int64
-          type: integer
-        label:
-          description: >-
-            (<a
-            href='https://universaldependencies.org/u/dep/#universal-dependency-relations'
-            target='_blank'>Dependency relation</a> between the token and the
-            head token
-          type: string
-    KnowledgeEntry:
-      description: Knowledge Graph data for a syncon
-      properties:
-        syncon:
-          description: Syncon ID
-          format: int64
-          type: integer
-        label:
-          description: Textual rendering of the general conceptual category for the token in the Knowledge Graph
-          type: string
-        properties:
-          description: Syncon extended properties
+        errors:
+          description: Service errors
           type: array
           items:
-            $ref: '#/components/schemas/Property'
-    SentimentItem:
-      description: Item or chain of items expressing sentiment
-      properties:
-        lemma:
-          description: Lemma
-          type: string
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          format: int64
-          type: integer
-        sentiment:
-          description: Item/chain sentiment score
-          type: number
-          format: float
-        items:
-          description: Items expressing sentiment
-          type: array
-          items:
-            $ref: '#/components/schemas/SentimentItem'
-    Relation:
-      description: Verb-mediated relation
-      properties:
-        verb:
-          $ref: '#/components/schemas/RelationVerb'
-        related:
-          description: Related items
-          type: array
-          items:
-            $ref: '#/components/schemas/RelatedItem'
-    RelationVerb:
-      description: Verb of a relation
-      properties:
-        text:
-          description: Verb text
-          type: string
-        lemma:
-          description: Lemma
-          type: string
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          format: int64
-          type: integer
-        type:
-          description: Type
-          type: string
-        phrase:
-          description: Phrase index in the `phrases` array
-          format: int64
-          type: integer
-        relevance:
-          description: Relevance
-          format: int64
-          type: integer
-    RelatedItem:
-      description: In a relation, a term that's directly or indirectly related to the verb
-      properties:
-        relation:
-          description: Verb-item relation
-          type: string
-        text:
-          description: Item text
-          type: string
-        lemma:
-          description: Lemma
-          type: string
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          format: int64
-          type: integer
-        vsyn:
-          $ref: '#/components/schemas/VirtualSyncon'
-        type:
-          description: Type
-          type: string
-        phrase:
-          description: Phrase index in the `phrases` array
-          format: int64
-          type: integer
-        relevance:
-          description: Relevance
-          format: int64
-          type: integer
-        related:
-          description: Related terms
-          type: array
-          items:
-            $ref: '#/components/schemas/RelatedItem'
-    InferredAttribute:
-      description: Inferred attribute
-      properties:
-        attribute:
-          description: Attribute name
-          type: string
-        lemma:
-          description: Lemma
-          type: string
-        syncon:
-          description: ID used to look up Knowledge Graph data in the `knowledge` array
-          type: integer
-          format: int64
-        type:
-          description: Attribute type
-          type: string  
-        attributes:
-          description: Attribute's attributes
-          type: array
-          items:
-            $ref: '#/components/schemas/InferredAttribute'        
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          $ref: '#/components/schemas/AnalyzeDocument'
     CategorizeResponse:
       description: Classification resource response
       properties:
@@ -944,6 +1003,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DocumentPosition'
+    ContextLanguageInfo:
+      description: Information about a supported language and available analyses
+      properties:
+        code:
+          description: Language code
+          type: string
+        name:
+          description: Language name
+          type: string
+        analyses:
+          description: Available analyses
+          type: array
+          items:
+            type: string 
     ContextInfo:
       description: Information about a context
       properties:
@@ -958,6 +1031,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContextLanguageInfo'
+    LanguageInfo:
+      description: Information about a supported language
+      properties:
+        code:
+          description: Language code
+          type: string
+        name:
+          description: Language name
+          type: string
     TaxonomyInfo:
       description: Summary information about a taxonomy
       properties:
@@ -975,17 +1057,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LanguageInfo'
-    Taxonomy:
-       description: A taxonomy's categories tree
-       properties:
-         namespace:
-           description: Name of the software package containing the reference taxonomy
-           type: string
-         taxonomy:
-           description: Categories tree
-           type: array
-           items:
-             $ref: '#/components/schemas/TaxonomyCategory'
     TaxonomyCategory:
       description: Taxonomy category
       properties:
@@ -1000,42 +1071,73 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaxonomyCategory'
-    LanguageInfo:
-      description: Information about a supported language
+    Taxonomy:
+       description: A taxonomy's categories tree
+       properties:
+         namespace:
+           description: Name of the software package containing the reference taxonomy
+           type: string
+         taxonomy:
+           description: Categories tree
+           type: array
+           items:
+             $ref: '#/components/schemas/TaxonomyCategory'
+    DetectorInfo:
+      description: Summary information about a detector
       properties:
-        code:
-          description: Language code
-          type: string
         name:
-          description: Language name
+          description: Detector name
           type: string
-    ContextLanguageInfo:
-      description: Information about a supported language and available analyses
-      properties:
-        code:
-          description: Language code
+        description:
+          description: Detector description
           type: string
-        name:
-          description: Language name
+        contract:
+          description: OpenAPI document describing the use of the detector and its output
           type: string
-        analyses:
-          description: Available analyses
+        languages:
+          description: Supported languages
           type: array
           items:
-            type: string 
-    VirtualSyncon:
-      description: A concept that does not exist in the Knowledge Graph but heuristics recognized as a type of a known parent concept.
+            $ref: '#/components/schemas/LanguageInfo'
+    ContextsResponse:
+      description: Available contexts
       properties:
-        id:
-          description: ID used to mark all the occurrences of the virtual concept in the text
-          format: int64
-          type: integer
-        parent:
-          description: >-
-            Parent concept; ID is used to look up Knowledge Graph data in the `knowledge`
-            array
-          format: int64
-          type: integer
+        contexts:
+          description: List of contexts' information
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextInfo'
+    TaxonomiesResponse:
+      description: Available taxonomies
+      properties:
+        texonomies:
+          description: List of taxonomies' information
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyInfo'
+    TaxonomyResponse:
+      description: Taxonomy categories
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Taxonomy'
+    DetectorsResponse:
+      description: Available detectors
+      properties:
+        detectors:
+          description: List of detectors' information
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectorInfo'
   securitySchemes:
     bearerAuth:
       bearerFormat: JWT

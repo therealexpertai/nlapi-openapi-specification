@@ -11,7 +11,7 @@ externalDocs:
   description: API documentation
   url: 'https://docs.expert.ai/nlapi/v2/'
 servers:
-  - url: "https://test-nlapi.expert.ai/v2"
+  - url: "https://nlapi.expert.ai/v2"
 tags:
   - name: PII detection
 paths:
