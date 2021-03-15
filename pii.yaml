@@ -11,10 +11,14 @@ externalDocs:
   description: API documentation
   url: 'https://docs.expert.ai/nlapi/v2/'
 servers:
-  - url: "https://nlapi.expert.ai/v2"
+  - url: "https://test-nlapi.expert.ai/v2"
+tags:
+  - name: PII detection
 paths:
   "/detect/pii/{language}":
     post:
+      tags:
+        - PII detection
       parameters:
         - name: "language"
           in: path
@@ -369,7 +373,9 @@ components:
             "deathPlace":
               type: string
             "dateTime":
-              type: string
+              type: array
+              items:
+                type: string
             "person":
               type: string
     "PIIPostalAddress":
