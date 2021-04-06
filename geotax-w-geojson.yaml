@@ -5,9 +5,9 @@ info:
     name: expert.ai
     url: 'https://expert.ai/'
   description: >
-    The GeoTax document classification module of the expert.ai Natural Language API detects the citations of geographic places in a text and returns the corresponding countries.<br />
-    The Natural Language API has its general contract (https://github.com/therealexpertai/nlapi-openapi-specification/blob/master/nlapi.yaml) specifying how to use the classification module to obtain countries' names a categories; this specific sub-contract specifies how to use the same classification module to obtain equivalent GeoJOSN data that can be used in a GIS (Geographic Information System), for example to highlight in a map the countries the text is about.
-  title: expert.ai Natural Language API - GeoJSON classification
+    The `geotax` taxonomy document classification resources of the expert.ai Natural Language API detect the citations of geographic places in a text and returns the corresponding countries.<br />
+    The Natural Language API has a [general contract](https://github.com/therealexpertai/nlapi-openapi-specification/blob/master/nlapi.yaml) specifying how to use document classification resources. This specific sub-contract specifies how to use the `geotax taxonomy resources in a special way to also obtain GeoJOSN data that can be used in a GIS (Geographic Information System), for example to highlight in a map the countries the text is about.
+  title: expert.ai Natural Language API - GeoTax classification with GeoJSON
   version: v2
 servers:
   - url: 'https://nlapi.expert.ai/v2'
