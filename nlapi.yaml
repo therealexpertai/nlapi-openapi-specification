@@ -429,7 +429,7 @@ components:
           format: int64
           type: integer
         type:
-          description: Cogito type
+          description: Expert.ai type
           type: string
         lemma:
           description: Lemma
@@ -464,7 +464,7 @@ components:
           format: int64
           type: integer
         type:
-          description: Cogito type
+          description: Expert.ai type
           type: string
         pos:
           description: >-
