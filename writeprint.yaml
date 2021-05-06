@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: "expert.ai Writeprint detector"
   version: "v2"
-  description: "Writeprint detector is the Natural Language API extension that detects personally identifiable information"
+  description: "Writeprint detector is the Natural Language API extension that detects 60 style markers to help determine the author's 'writeprint' with 60 stylometric indexes"
   contact:
     email: api.inquiry@expert.ai
     name: expert.ai
@@ -349,107 +349,34 @@ components:
               "name":
                 description: "Property name"
                 type: string
-    "PIIPerson":
-      description: "Person"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "givenName":
-              type: string
-            "familyName":
-              type: string
-            "age":
-              type: string
-            "gender":
-              type: string
-            "nationality":
-              type: string
-            "birthDate":
-              type: string
-            "birthPlace":
-              type: string
-            "deathDate":
-              type: string
-            "deathPlace":
-              type: string
-            "dateTime":
-              type: array
-              items:
-                type: string
-            "person":
-              type: string
-    "PIIPostalAddress":
-      description: "Postal address"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "address":
-              type: string
-            "streetAddress":
-              type: string
-            "addressCountry":
-              type: string
-            "addressLocality":
-              type: string
-            "addressRegion":
-              type: string
-            "postOfficeBoxNumber":
-              type: string
-            "postalCode":
-              type: string
-    "PIIBankAccount":
-      description: "Bank account"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "IBAN":
-              type: string
-            "IBANcountry":
-              type: string
-    "PIIFinancialProduct":
-      description: "Credit card"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "creditDebitNumber":
-              type: string
-            "CVV":
-              type: string
-            "expirationDate":
-              type: string
-    "PIItelephone":
-      description: "Phone number"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "telephone":
-              type: string
-    "PIIemail":
-      description: "E-mail address"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "email":
-              type: string
-    "PIIURL":
-      description: "URL"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "URL":
-              type: string
-    "PIIIP":
-      description: "Internet Protocol (IP) address"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "IP":
-              type: string
-    "WriteprintIndex":
-      description: "A Writeprint index"
-      oneOf:
-        - $ref: "#/components/schemas/ReadabiltyIndex"
-        - $ref: "#/components/schemas/StructureIndex"
+    "ReadabilityIndex":
+      description: "A readability index"
+      properties:
+        "@type":
+          type: string
+        "name":
+          description: "Index name"
+          type: string
+        "value":
+          description: "Index value"
+          type: number
+        "readabilityLevel":
+          description: "Degree of difficulty"
+          type: string
+    "CounterIndex":
+      description: "A counter index"
+      properties:
+        "total":
+          type: number
+    "PerSentenceIndex":
+      description: "A 'per sentence' index"
+      properties:
+        "mean":
+          type: number
+        "standardDeviation":
+          type: number
+        "meanAbsoluteDeviation":
+          type: number
     "Response":
       description: "Detector's response"
       properties:
@@ -523,4 +450,127 @@ components:
                       description: "JSON-LD graph data"
                       type: array
                       items:
-                        $ref: "#/components/schemas/WriteprintIndex"
+                        type: object
+                        properties:
+                          "@type":
+                            type: string
+                          "readabilityIndexes":
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/ReadabilityIndex"
+                          "structureIndexes":
+                            properties:
+                              "sentences":
+                                $ref: "#/components/schemas/CounterIndex"
+                              "tokens":
+                                $ref: "#/components/schemas/CounterIndex"
+                              "tokenLengthPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "verbTypes":
+                                $ref: "#/components/schemas/CounterIndex"
+                              "charactersPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "atomsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "tokensPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "phrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "verbTypesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "smallFirstLetterSentences":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "capitalFirstLetterSentences":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "adjectivesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "adverbsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "articlesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "auxiliariesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "conjunctionsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "nounsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "properNounsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "punctuationPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "prepositionsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "pronounsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "particlesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "verbsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "namedEntitiesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "adjectivePhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "conjunctionPhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "adverbPhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "nounPhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "nominalPredicatesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "prepositionPhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "relativePhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "verbPhrasesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "emoticonsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "dotsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "multipleDotsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "questionMarksPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "multipleQuestionMarksPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "exclamationMarksPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "multipleExclamationMarksPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "exclamationMarkQuestionMarkSequencesPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "commasPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "colonsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "semicolonsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "singleQuotationMarksPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "doubleQuotationMarksPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "unknownConceptsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "functionWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "commonlyMisspelledWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "mostCommonWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "academicLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "businessLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "crimeLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "laymanLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "legalLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "militaryLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "politicalLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
+                              "socialMediaLanguageWordsPerSentence":
+                                $ref: "#/components/schemas/PerSentenceIndex"
