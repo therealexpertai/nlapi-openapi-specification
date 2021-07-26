@@ -37,6 +37,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Response"
+        "400":
+          description: Bad Request
         "401":
           description: "Unauthorized"
         "403":

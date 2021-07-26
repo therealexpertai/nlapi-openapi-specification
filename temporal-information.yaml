@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: "expert.ai PII detector"
+  title: "expert.ai Temporal information detector"
   version: "v2"
-  description: "PII detector is the Natural Language API extension that detects personally identifiable information"
+  description: "Temporal information detector is the Natural Language API extension that detects time points, time spans and time intervals"
   contact:
     email: api.inquiry@expert.ai
     name: expert.ai
@@ -13,12 +13,12 @@ externalDocs:
 servers:
   - url: "https://nlapi.expert.ai/v2"
 tags:
-  - name: PII detection
+  - name: Temporal information detection
 paths:
-  "/detect/pii/{language}":
+  "/detect/temporal-information/{language}":
     post:
       tags:
-        - PII detection
+        - Temporal information detection
       parameters:
         - name: "language"
           in: path
@@ -323,141 +323,62 @@ components:
                 type: array
                 items:
                   $ref: "#/components/schemas/DocumentPosition"
-    "PIIBaseItem":
-      description: "Type with properties inherited by all JSON-LD graph PII types"
+    "TemporalInformationMatch":
+      description: "An occurrence of a temporal information in the text"
       properties:
+        "@id":
+          description: "Unique identifier"
+          type: string
+        "start":
+          description: "Zero-based position of the first character of the portion of text corresponding to the information occurrence"
+          format: int64
+          type: integer
+        "end":
+          description: "Zero-based position of the first character after the last of the portion of text corresponding to the information occurrence"
+          format: int64
+          type: integer
+        "sentence":
+          description: "Zero-based index of the item of the sentences array representing the sentence in which the occurrence of the information was found"
+          format: int64
+          type: integer
+        "derived":
+          description: "Present and true if the match was derived from other temporal information"
+          type: boolean
+        "referenceTimePoint":
+          description: "In the case of derived time point, the value of the @id property of another information item representing the base time point"
+          type: string
+        "referenceTimeSpan":
+          description: "In the case of derived time point, the value of the @id property of another information item representing the time span that was added to or subtracted from the base time point"
+          type: string
+        "indefiniteQuantity":
+          description: "In case of time spans with indefinite quantity, the portion of text expressing the quantity, for example 'some'"
+          type: string
+        "duration":
+          description: "In case of time spans that represent a duration, the portion of text expressing the duration, for example 'for'"
+          type: string
+        "text":
+          description: "Portion of text corresponding to the information occurrence"
+          type: string
+    "TemporalInformationItem":
+      description: "An item carrying temporal information"
+      properties:
+        "@id":
+          description: "Unique identifier"
+          type: string
         "@type":
           description: "JSON-LD graph item type"
           type: string
-        "@id":
-          description: "JSON-LD graph item id"
+        "name":
+          description: "Temporal information expression type, can be 'TimePoint', 'TimeSpan' or 'TimeInterval'"
+          type: string
+        "value":
+          description: "Normalized information"
           type: string
         "matches":
-          description: "Text matches of items' properties"
+          description: "Occurrences of the information in the text"
           type: array
           items:
-            properties:
-              "start":
-                description: "Property value in the text, zero-based position of the first character"
-                format: int64
-                type: integer
-              "end":
-                description: "Property value in the text, zero-based position of the character after the last"
-                format: int64
-                type: integer
-              "value":
-                description: "Property value"
-                type: string
-              "name":
-                description: "Property name"
-                type: string
-    "PIIPerson":
-      description: "Person"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "givenName":
-              type: string
-            "familyName":
-              type: string
-            "age":
-              type: string
-            "gender":
-              type: string
-            "nationality":
-              type: string
-            "birthDate":
-              type: string
-            "birthPlace":
-              type: string
-            "deathDate":
-              type: string
-            "deathPlace":
-              type: string
-            "dateTime":
-              type: array
-              items:
-                type: string
-            "person":
-              type: string
-    "PIIPostalAddress":
-      description: "Postal address"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "address":
-              type: string
-            "streetAddress":
-              type: string
-            "addressCountry":
-              type: string
-            "addressLocality":
-              type: string
-            "addressRegion":
-              type: string
-            "postOfficeBoxNumber":
-              type: string
-            "postalCode":
-              type: string
-    "PIIBankAccount":
-      description: "Bank account"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "IBAN":
-              type: string
-            "IBANcountry":
-              type: string
-    "PIIFinancialProduct":
-      description: "Credit card"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "creditDebitNumber":
-              type: string
-            "CVV":
-              type: string
-            "expirationDate":
-              type: string
-    "PIItelephone":
-      description: "Phone number"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "telephone":
-              type: string
-    "PIIemail":
-      description: "E-mail address"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "email":
-              type: string
-    "PIIURL":
-      description: "URL"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "URL":
-              type: string
-    "PIIIP":
-      description: "Internet Protocol (IP) address"
-      allOf:
-        - $ref: "#/components/schemas/PIIBaseItem"
-        - properties:
-            "IP":
-              type: string
-    "PIIItem":
-      description: "Personally Identifiable Information (PII) item"
-      oneOf:
-        - $ref: "#/components/schemas/PIIPerson"
-        - $ref: "#/components/schemas/PIIPostalAddress"
-        - $ref: "#/components/schemas/PIIBankAccount"
-        - $ref: "#/components/schemas/PIIFinancialProduct"
-        - $ref: "#/components/schemas/PIItelephone"
-        - $ref: "#/components/schemas/PIIemail"
-        - $ref: "#/components/schemas/PIIURL"
-        - $ref: "#/components/schemas/PIIIP"
+            $ref: "#/components/schemas/TemporalInformationMatch"
     "Response":
       description: "Detector's response"
       properties:
@@ -520,92 +441,24 @@ components:
               items:
                 $ref: "#/components/schemas/Extraction"
             "extraData":
-              description: "PII detector specific output"
+              description: "Temporal information detector specific output"
               properties:
+                "script-version":
+                  description: "Version of the scripting engine used by the detector"
+                  type: string
                 "JSON-LD":
                   description: "JSON-LD format output"
                   properties:
                     "@context":
                       description: "JSON-LD context"
-                      properties:
-                        "@version":
-                          type: string
-                        "schema":
-                          type: string
-                        "matches":
-                          type: string
-                        "start":
-                          properties:
-                            "@id":
-                              type: string
-                        "end":
-                          properties:
-                            "@id":
-                              type: string
-                        "text":
-                          type: string
-                        "additionalProperty":
-                          type: string
-                        "URL":
-                          type: string
-                        "IP":
-                          type: string
-                        "type":
-                          type: string
-                        "email":
-                          type: string
-                        "IBAN":
-                          type: string
-                        "IBANcountry":
-                          type: string
-                        "postalAddress":
-                          type: string
-                        "creditDebitNumber":
-                          type: string
-                        "CVV":
-                          type: string
-                        "expirationDate":
-                          type: string
-                        "birthDate":
-                          type: string
-                        "deathDate":
-                          type: string
-                        "dateTime":
-                          type: string
-                        "telephone":
-                          type: string
-                        "address":
-                          type: string
-                        "streetAddress":
-                          type: string
-                        "addressCountry":
-                          type: string
-                        "postalCode":
-                          type: string
-                        "addressLocality":
-                          type: string
-                        "addressRegion":
-                          type: string
-                        "person":
-                          type: string
-                        "age":
-                          type: string
-                        "familyName":
-                          type: string
-                        "gender":
-                          type: string
-                        "givenName":
-                          type: string
-                        "nationality":
-                          type: string
-                        "birthPlace":
-                          type: string
-                        "deathPlace":
-                          type: string
-                        "postOfficeBoxNumber":
-                          type: string
                     "@graph":
                       description: "JSON-LD graph data"
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/PIIItem"
+                      properties:
+                        "@id":
+                          description: "Detector's name"
+                          type: string
+                        "items":
+                          description: "Temporal information items"
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/TemporalInformationItem"
