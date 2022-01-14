@@ -28,6 +28,7 @@ paths:
            type: string
            enum:
              - en
+             - de
        - description: Classification features, specify `extradata` to obtain main groups
          in: query
          name: features
@@ -40,15 +41,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnalysisRequest'
+              $ref: 'nlapi.yaml#/components/schemas/AnalysisRequest'
         description: The document to be classified
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CategorizeResponse'
-          description: Resource response
+          $ref: "#/components/responses/200EmotionalTraitsCategorize"
         '400':
           description: Bad Request
         '401':
@@ -68,45 +65,14 @@ paths:
         - Emotional traits classification
 components:
   responses:
-    200Categorize:
+    200EmotionalTraitsCategorize:
       description: Resource response
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/CategorizeResponse'
+            $ref: '#/components/schemas/EmotionalTraitsResponse'
   schemas:
-    DocumentPosition:
-      description: Position
-      properties:
-        start:
-          description: Zero-based position of the first character
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the character after the last
-          format: int64
-          type: integer
-    AnalysisRequest:
-      description: Request
-      properties:
-        document:
-          $ref: '#/components/schemas/Document'
-    Document:
-      description: Document
-      properties:
-        text:
-          description: The document's text
-          type: string
-    ServiceError:
-      description: Error information
-      properties:
-        code:
-          description: Error code
-          type: string
-        message:
-          description: Error message
-          type: string
-    CategorizeResponse:
+    EmotionalTraitsResponse:
       description: Classification resource response
       properties:
         success:
@@ -116,46 +82,11 @@ components:
           description: Service errors
           type: array
           items:
-            $ref: '#/components/schemas/ServiceError'
+            $ref: 'nlapi.yaml#/components/schemas/ServiceError'
         data:
-          $ref: '#/components/schemas/CategorizeDocument'
-    Category:
-      description: Category
-      properties:
-        id:
-          description: Category ID
-          type: string
-        label:
-          description: Category label
-          type: string
-        hierarchy:
-          description: Hierarchical path
-          type: array
-          items:
-            type: string
-        score:
-          description: Score assigned to the category to represent its relevance
-          format: int32
-          type: integer
-        winner:
-          description: True if the category is deemed particularly relevant
-          type: boolean
-        namespace:
-          description: Name of the software package containing the reference taxonomy
-          type: string
-        frequency:
-          description: >-
-            Score expressed as a percentage of the sum of the scores of all the
-            candidate categories, winners and not (see the **score** property)
-          format: float
-          type: number
-        positions:
-          description: >-
-            Positions of the portions of text that contributed to the selection
-            of the category
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentPosition'
+          allOf:
+            - $ref: 'nlapi.yaml#/components/schemas/CategorizeDocument'
+            - $ref: '#/components/schemas/EmotionalTraitsDocument'
     Group:
       description: Group of emotional traits
       properties:
@@ -169,21 +100,11 @@ components:
           description: Group rank
           format: int32
           type: integer
-    CategorizeDocument:
+    EmotionalTraitsDocument:
       description: Categorization data
       properties:
-        version:
-          description: Service version
-          type: string
-        language:
-          description: Text language
-          type: string
-        categories:
-          description: Categories
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
         extraData:
+          type: object
           description: Extra-data containing main groups
           properties:
             groups:

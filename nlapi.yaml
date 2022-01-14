@@ -753,12 +753,16 @@ components:
       properties:
         document:
           $ref: '#/components/schemas/Document'
+      required:
+        - document
     Document:
       description: Document
       properties:
         text:
           description: The document's text
           type: string
+      required:
+        - text
     Property:
       description: Syncon property
       properties:
@@ -827,6 +831,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelatedItem'
+    Extraction:
+      description: "Extraction record"
+      properties:
+        "namespace":
+          description: "Software package name"
+          type: string
+        "template":
+          description: "Extraction record template"
+          type: string
+        "fields":
+          description: "Extraction record fields"
+          type: array
+          items:
+            type: object
+            properties:
+              "name":
+                description: "Field name"
+                type: string
+              "value":
+                description: "Field value"
+                type: string
+              "positions":
+                description: "Positions of parts of the text corresponding to the field value"
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentPosition"
     AnalyzeDocument:
       description: Analysis data
       properties:
@@ -1101,6 +1131,53 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LanguageInfo'
+    DetectorBaseDocument:
+      description: "Base document for all detectors"
+      properties:
+        "version":
+              description: "Service version"
+              type: string
+        "content":
+          description: "Analyzed text"
+          type: string
+        "language":
+          description: "Text language"
+          type: string
+        "paragraphs":
+          description: "Paragraphs"
+          type: array
+          items:
+            $ref: "#/components/schemas/Paragraph"
+        "sentences":
+          description: "Sentences"
+          type: array
+          items:
+            $ref: "#/components/schemas/Sentence"
+        "phrases":
+          description: "Phrases"
+          type: array
+          items:
+            $ref: "#/components/schemas/Phrase"
+        "tokens":
+          description: "Tokens"
+          type: array
+          items:
+            $ref: "#/components/schemas/Token"
+        "entities":
+          description: "Entities"
+          type: array
+          items:
+            $ref: "#/components/schemas/Entity"
+        "knowledge":
+          description: "Knowledge Graph syncons' data"
+          type: array
+          items:
+            $ref: "#/components/schemas/KnowledgeEntry"
+        "extractions":
+          description: "Extracted information"
+          type: array
+          items:
+            $ref: "#/components/schemas/Extraction"
     ContextsResponse:
       description: Available contexts
       properties:
