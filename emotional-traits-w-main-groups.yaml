@@ -62,7 +62,7 @@ paths:
         - bearerAuth: []
       summary: Emotional traits classification with extra data containing the main groups of emotions
       tags:
-        - Emotional traits classification
+        - Document classification
 components:
   responses:
     200EmotionalTraitsCategorize:

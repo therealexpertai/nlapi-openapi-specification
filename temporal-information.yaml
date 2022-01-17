@@ -13,12 +13,12 @@ externalDocs:
 servers:
   - url: "https://nlapi.expert.ai/v2"
 tags:
-  - name: Temporal information detection
+  - name: Information detection
 paths:
   "/detect/temporal-information/{language}":
     post:
       tags:
-        - Temporal information detection
+        - Information detection
       parameters:
         - name: "language"
           in: path

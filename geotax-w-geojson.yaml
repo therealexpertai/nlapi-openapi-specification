@@ -61,7 +61,7 @@ paths:
         - bearerAuth: []
       summary: Classification
       tags:
-        - Document Classification
+        - Document classification
 components:
   responses:
     200GeoTaxCategorize:

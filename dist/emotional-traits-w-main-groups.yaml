@@ -1,0 +1,226 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: https://expert.ai/
+  description: >-
+    The `emotional-traits` document classification resources of the expert.ai
+    Natural Language API classify documents in terms of feelings like joy,
+    surprise, irritation, etc. expressed in the text. In addition, when
+    requested with a specific query-string parameter, they return extra-data
+    containing the [main
+    groups](https://docs.expert.ai/nlapi/latest/reference/emotional-traits-main-groups/)
+    to which the emotional traits belong. Especially with longer texts, main
+    groups are an useful abstract of the detailed classification.<br />The
+    Natural Language API has a [general OpenAPI
+    contract](https://github.com/therealexpertai/nlapi-openapi-specification/blob/master/nlapi.yaml)
+    specifying how to use document classification resources. This specific
+    sub-contract specifies how to use the `emotional-traits` taxonomy resources
+    in a special way to also obtain the main groups as additional output.
+  title: >-
+    expert.ai Natural Language API - Emotional traits classification with main
+    groups
+  version: v2
+externalDocs:
+  description: API documentation
+  url: https://docs.expert.ai/nlapi/v2/
+servers:
+  - url: https://nlapi.expert.ai/v2
+tags:
+  - description: Emotional traits classification API endpoints
+    name: Emotional traits classification
+paths:
+  /categorize/emotional-traits/{language}:
+    post:
+      description: Classification of the posted text
+      parameters:
+        - description: >-
+            Two letter ISO code of the input document language. Currently the
+            `emotional-traits` taxonomy is available for the English language
+            (language code `en`), support for more languages will be added in
+            future releases.
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - en
+              - de
+        - description: Classification features, specify `extradata` to obtain main groups
+          in: query
+          name: features
+          required: true
+          schema:
+            type: string
+            enum:
+              - extradata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be classified
+      responses:
+        '200':
+          $ref: '#/components/responses/200EmotionalTraitsCategorize'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: >-
+        Emotional traits classification with extra data containing the main
+        groups of emotions
+      tags:
+        - Document classification
+components:
+  responses:
+    200EmotionalTraitsCategorize:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EmotionalTraitsResponse'
+  schemas:
+    EmotionalTraitsResponse:
+      description: Classification resource response
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          allOf:
+            - $ref: '#/components/schemas/CategorizeDocument'
+            - $ref: '#/components/schemas/EmotionalTraitsDocument'
+    Group:
+      description: Group of emotional traits
+      properties:
+        id:
+          description: ID of the category corresponding to the group inside the taxonomy
+          type: string
+        label:
+          description: Label of the category corresponding to the group inside the taxonomy
+          type: string
+        position:
+          description: Group rank
+          format: int32
+          type: integer
+    EmotionalTraitsDocument:
+      description: Categorization data
+      properties:
+        extraData:
+          type: object
+          description: Extra-data containing main groups
+          properties:
+            groups:
+              description: Main groups
+              type: array
+              items:
+                $ref: '#/components/schemas/Group'
+    Document:
+      description: Document
+      properties:
+        text:
+          description: The document's text
+          type: string
+      required:
+        - text
+    AnalysisRequest:
+      description: Request
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+      required:
+        - document
+    ServiceError:
+      description: Error information
+      properties:
+        code:
+          description: Error code
+          type: string
+        message:
+          description: Error message
+          type: string
+    DocumentPosition:
+      description: Position
+      properties:
+        start:
+          description: Zero-based position of the first character
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the character after the last
+          format: int64
+          type: integer
+    Category:
+      description: Category
+      properties:
+        id:
+          description: Category ID
+          type: string
+        label:
+          description: Category label
+          type: string
+        hierarchy:
+          description: Hierarchical path
+          type: array
+          items:
+            type: string
+        score:
+          description: Score assigned to the category to represent its relevance
+          format: int32
+          type: integer
+        winner:
+          description: True if the category is deemed particularly relevant
+          type: boolean
+        namespace:
+          description: Name of the software package containing the reference taxonomy
+          type: string
+        frequency:
+          description: >-
+            Score expressed as a percentage of the sum of the scores of all the
+            candidate categories, winners and not (see the **score** property)
+          format: float
+          type: number
+        positions:
+          description: >-
+            Positions of the portions of text that contributed to the selection
+            of the category
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    CategorizeDocument:
+      description: Categorization data
+      properties:
+        version:
+          description: Service version
+          type: string
+        language:
+          description: Text language
+          type: string
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http

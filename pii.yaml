@@ -18,7 +18,7 @@ paths:
   "/detect/pii/{language}":
     post:
       tags:
-        - PII detection
+        - Information detection
       parameters:
         - name: "language"
           in: path
@@ -49,7 +49,7 @@ paths:
         - bearerAuth: []  
 components:
   securitySchemes:
-      "bearerAuth":
+    "bearerAuth":
         bearerFormat: JWT
         scheme: bearer
         type: http
