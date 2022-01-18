@@ -303,14 +303,7 @@ components:
           description: "Success flag"
           type: boolean
         "error":
-          description: "Error description"
-          properties:
-            "code":
-              description: "Error code"
-              type: string
-            "message":
-              description: "Error message"
-              type: string
+          $ref: 'nlapi.yaml#/components/schemas/ServiceError'
         "data":
           allOf:
             - $ref: "nlapi.yaml#/components/schemas/DetectorBaseDocument"
