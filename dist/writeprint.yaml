@@ -1,0 +1,606 @@
+openapi: 3.0.3
+info:
+  title: expert.ai Writeprint detector
+  version: v2
+  description: >-
+    Writeprint detector is the Natural Language API extension that detects 60
+    style markers to help determine the author's 'writeprint' with 60
+    stylometric indexes
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: https://expert.ai/
+externalDocs:
+  description: API documentation
+  url: https://docs.expert.ai/nlapi/v2/
+servers:
+  - url: https://nlapi.expert.ai/v2
+tags:
+  - name: Writeprint detection
+paths:
+  /detect/writeprint/{language}:
+    post:
+      tags:
+        - Information detection
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/200WriteprintDetection'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+  responses:
+    200WriteprintDetection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WriteprintResponse'
+  schemas:
+    ReadabilityIndex:
+      description: A readability index
+      properties:
+        '@type':
+          type: string
+        name:
+          description: Index name
+          type: string
+        value:
+          description: Index value
+          type: number
+        readabilityLevel:
+          description: Degree of difficulty
+          type: string
+    CounterIndex:
+      description: A counter index
+      properties:
+        total:
+          type: number
+    PerSentenceIndex:
+      description: A 'per sentence' index
+      properties:
+        mean:
+          type: number
+        standardDeviation:
+          type: number
+        meanAbsoluteDeviation:
+          type: number
+    WriteptintGraphStructuredIntexes:
+      properties:
+        sentences:
+          $ref: '#/components/schemas/CounterIndex'
+        tokens:
+          $ref: '#/components/schemas/CounterIndex'
+        tokenLengthPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbTypes:
+          $ref: '#/components/schemas/CounterIndex'
+        charactersPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        atomsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        tokensPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        phrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbTypesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        smallFirstLetterSentences:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        capitalFirstLetterSentences:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adjectivesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adverbsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        articlesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        auxiliariesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        conjunctionsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        nounsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        properNounsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        punctuationPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        prepositionsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        pronounsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        particlesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        namedEntitiesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adjectivePhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        conjunctionPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adverbPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        nounPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        nominalPredicatesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        prepositionPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        relativePhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        emoticonsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        dotsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        multipleDotsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        questionMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        multipleQuestionMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        exclamationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        multipleExclamationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        exclamationMarkQuestionMarkSequencesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        commasPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        colonsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        semicolonsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        singleQuotationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        doubleQuotationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        unknownConceptsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        functionWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        commonlyMisspelledWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        mostCommonWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        academicLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        businessLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        crimeLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        laymanLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        legalLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        militaryLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        politicalLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        socialMediaLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+    WriteprintJSONLD:
+      description: JSON-LD format output
+      properties:
+        '@context':
+          description: JSON-LD context
+        '@graph':
+          description: JSON-LD graph data
+          type: array
+          items:
+            type: object
+            properties:
+              '@type':
+                type: string
+              readabilityIndexes:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReadabilityIndex'
+              structureIndexes:
+                $ref: '#/components/schemas/WriteptintGraphStructuredIntexes'
+    WriteprintExtraData:
+      description: Writeprint Extra Data
+      properties:
+        JSON-LD:
+          $ref: '#/components/schemas/WriteprintJSONLD'
+    WriteprintDocument:
+      description: Writeprint Specific Document properties
+      properties:
+        extraData:
+          $ref: '#/components/schemas/WriteprintExtraData'
+    WriteprintResponse:
+      description: Detector's response
+      properties:
+        success:
+          description: Success flag
+          type: boolean
+        error:
+          description: Error description
+          properties:
+            code:
+              description: Error code
+              type: string
+            message:
+              description: Error message
+              type: string
+        data:
+          allOf:
+            - $ref: '#/components/schemas/DetectorBaseDocument'
+            - $ref: '#/components/schemas/WriteprintDocument'
+    Document:
+      description: Document
+      properties:
+        text:
+          description: The document's text
+          type: string
+      required:
+        - text
+    AnalysisRequest:
+      description: Request
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+      required:
+        - document
+    Paragraph:
+      description: Paragraph info
+      properties:
+        start:
+          description: Zero-based position of the first character of the paragraph
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the paragraph
+          format: int64
+          type: integer
+        sentences:
+          description: >-
+            Indexes (in the `sentences` array) of the sentences that make up the
+            paragraph
+          type: array
+          items:
+            description: Sentence index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Sentence:
+      description: Sentence info
+      properties:
+        start:
+          description: Zero-based position of the first character of the sentence
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the sentence
+          format: int64
+          type: integer
+        phrases:
+          description: >-
+            Indexes (in the `phrases` array) of the phrases that make up the
+            sentence
+          type: array
+          items:
+            description: Phrase index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Phrase:
+      description: Phrase info
+      properties:
+        start:
+          description: Zero-based position of the first character of the phrase
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the phrase
+          format: int64
+          type: integer
+        tokens:
+          description: >-
+            Indexes (in the `tokens` array) of the tokens that make up the
+            phrase
+          type: array
+          items:
+            description: Token index
+            format: int32
+            type: integer
+          uniqueItems: true
+        type:
+          description: Phrase type
+          type: string
+    VirtualSyncon:
+      description: >-
+        A concept that does not exist in the Knowledge Graph but heuristics
+        recognized as a type of a known parent concept.
+      properties:
+        id:
+          description: >-
+            ID used to mark all the occurrences of the virtual concept in the
+            text
+          format: int64
+          type: integer
+        parent:
+          description: >-
+            Parent concept; ID is used to look up Knowledge Graph data in the
+            `knowledge` array
+          format: int64
+          type: integer
+    Dependency:
+      description: Dependency info
+      properties:
+        id:
+          description: Zero-based cardinal number of the token
+          format: int64
+          type: integer
+        head:
+          description: Number of the head token
+          format: int64
+          type: integer
+        label:
+          description: >-
+            (<a
+            href='https://universaldependencies.org/u/dep/#universal-dependency-relations'
+            target='_blank'>Dependency relation</a> between the token and the
+            head token
+          type: string
+    Atom:
+      description: Atom info
+      properties:
+        start:
+          description: Zero-based position of the first character of the atom
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the atom
+          format: int64
+          type: integer
+        type:
+          description: Expert.ai type
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+    Token:
+      description: Token info
+      properties:
+        start:
+          description: Zero-based position of the first character of the token
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the token
+          format: int64
+          type: integer
+        type:
+          description: Expert.ai type
+          type: string
+        pos:
+          description: >-
+            <a href='https://universaldependencies.org/u/pos/'>Universal
+            Dependencies part-of-speech tag</a>
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        morphology:
+          description: >-
+            A semicolon separated list of <a
+            href='https://universaldependencies.org/format.html#morphological-annotation'>CoNLL-U
+            format</a> morphological features
+          type: string
+        dependency:
+          $ref: '#/components/schemas/Dependency'
+        atoms:
+          description: Atoms that make up the token
+          type: array
+          items:
+            $ref: '#/components/schemas/Atom'
+        paragraph:
+          description: Paragraph index in the `paragraphs` array
+          format: int64
+          type: integer
+        sentence:
+          description: Sentence index in the `sentences` array
+          format: int64
+          type: integer
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+    DocumentPosition:
+      description: Position
+      properties:
+        start:
+          description: Zero-based position of the first character
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the character after the last
+          format: int64
+          type: integer
+    InferredAttribute:
+      description: Inferred attribute
+      properties:
+        attribute:
+          description: Attribute name
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          type: integer
+          format: int64
+        type:
+          description: Attribute type
+          type: string
+        attributes:
+          description: Attribute's attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    Entity:
+      description: Entity info
+      properties:
+        type:
+          description: Entity type
+          type: string
+        lemma:
+          description: Base form (lemma) of the entity name
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        positions:
+          description: Positions of the entity's mentions
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+        relevance:
+          description: Entity relevance
+          format: int64
+          type: integer
+        attributes:
+          description: >-
+            Entity attributes inferred from the context or from the Knowledge
+            Graph
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    Property:
+      description: Syncon property
+      properties:
+        type:
+          description: Property type
+          type: string
+        value:
+          description: Property value
+          type: string
+    KnowledgeEntry:
+      description: Knowledge Graph data for a syncon
+      properties:
+        syncon:
+          description: Syncon ID
+          format: int64
+          type: integer
+        label:
+          description: >-
+            Textual rendering of the general conceptual category for the token
+            in the Knowledge Graph
+          type: string
+        properties:
+          description: Syncon extended properties
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+    Extraction:
+      description: Extraction record
+      properties:
+        namespace:
+          description: Software package name
+          type: string
+        template:
+          description: Extraction record template
+          type: string
+        fields:
+          description: Extraction record fields
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Field name
+                type: string
+              value:
+                description: Field value
+                type: string
+              positions:
+                description: >-
+                  Positions of parts of the text corresponding to the field
+                  value
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentPosition'
+    DetectorBaseDocument:
+      description: Base document for all detectors
+      properties:
+        version:
+          description: Service version
+          type: string
+        content:
+          description: Analyzed text
+          type: string
+        language:
+          description: Text language
+          type: string
+        paragraphs:
+          description: Paragraphs
+          type: array
+          items:
+            $ref: '#/components/schemas/Paragraph'
+        sentences:
+          description: Sentences
+          type: array
+          items:
+            $ref: '#/components/schemas/Sentence'
+        phrases:
+          description: Phrases
+          type: array
+          items:
+            $ref: '#/components/schemas/Phrase'
+        tokens:
+          description: Tokens
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        entities:
+          description: Entities
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        knowledge:
+          description: Knowledge Graph syncons' data
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeEntry'
+        extractions:
+          description: Extracted information
+          type: array
+          items:
+            $ref: '#/components/schemas/Extraction'

@@ -1,0 +1,74 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: 'https://expert.ai/'
+  description: >
+    Natural Language API provides a comprehensive set of natural language
+    understanding capabilities based on expert.ai technology:
+    <ul>
+      <li>Context based document analysis, comprising:</li>
+      <ul>
+        <li>Deep linguistic analysis, which, in turn, comprises:</li>
+        <ul>
+          <li>Text subdivision</li>
+          <li>Part-of-speech tagging</li>
+          <li>Morphological analysis</li>
+          <li>Lemmatization</li>
+          <li>Syntactic analysis</li>
+          <li>Semantic analysis</li>
+        </ul>
+        <li>Keyphrase extraction</li>
+        <li>Named entity recognition</li>
+        <li>Relation extraction</li>
+        <li>Sentiment analysis</li>
+      </ul>
+      <li>Taxonomy based document classification</li>
+      <li>Information detection performed by detectors</li>
+    </ul>
+  title: expert.ai Natural Language API
+  version: v2
+externalDocs:
+  description: API documentation
+  url: 'https://docs.expert.ai/nlapi/v2/'
+servers:
+  - url: 'https://nlapi.expert.ai/v2'
+tags:
+  - description: Document analysis API endpoints
+    name: Document analysis
+  - description: Document classification API endpoints
+    name: Document classification
+  - description: Information detection API endpoints
+    name: Information detection
+paths:
+  /analyze/{context}/{language}:
+    $ref: "nlapi.yaml#/paths/~1analyze~1{context}~1{language}"
+  /analyze/{context}/{language}/{analysis}:
+    $ref: "nlapi.yaml#/paths/~1analyze~1{context}~1{language}~1{analysis}"
+  /categorize/{taxonomy}/{language}:
+    $ref: "nlapi.yaml#/paths/~1categorize~1{taxonomy}~1{language}"
+  /categorize/geotax/{language}:
+    $ref: "geotax-w-geojson.yaml#/paths/~1categorize~1geotax~1{language}"
+  /categorize/emotional-traits/{language}:
+    $ref: "emotional-traits-w-main-groups.yaml#/paths/~1categorize~1emotional-traits~1{language}"
+  /contexts:
+    $ref: "nlapi.yaml#/paths/~1contexts"
+  /taxonomies:
+    $ref: "nlapi.yaml#/paths/~1taxonomies"
+  /taxonomies/{taxonomy}/{language}:
+    $ref: "nlapi.yaml#/paths/~1taxonomies~1{taxonomy}~1{language}"
+  /detectors:
+    $ref: "nlapi.yaml#/paths/~1detectors"
+  /detect/pii/{language}:
+    $ref: "pii.yaml#/paths/~1detect~1pii~1{language}"
+  /detect/writeprint/{language}:
+    $ref: "writeprint.yaml#/paths/~1detect~1writeprint~1{language}"
+  /detect/temporal-information/{language}:
+    $ref: "temporal-information.yaml#/paths/~1detect~1temporal-information~1{language}"
+components:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http

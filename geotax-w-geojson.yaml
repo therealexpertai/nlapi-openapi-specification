@@ -40,15 +40,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnalysisRequest'
+              $ref: 'nlapi.yaml#/components/schemas/AnalysisRequest'
         description: The document to be classified
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeoTaxResponse'
-          description: Resource response
+          $ref: "#/components/responses/200GeoTaxCategorize"
         '400':
           description: Bad Request
         '401':
@@ -65,8 +61,15 @@ paths:
         - bearerAuth: []
       summary: Classification
       tags:
-        - Document Classification
+        - Document classification
 components:
+  responses:
+    200GeoTaxCategorize:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeoTaxResponse'
   schemas:
     GeoTaxResponse:
       description: Resource response
@@ -78,24 +81,16 @@ components:
           description: Service errors
           type: array
           items:
-            $ref: '#/components/schemas/ServiceError'
+            $ref: 'nlapi.yaml#/components/schemas/ServiceError'
         data:
-          $ref: '#/components/schemas/GeoTaxDocument'
+          allOf:
+            - $ref: "nlapi.yaml#/components/schemas/CategorizeDocument"
+            - $ref: '#/components/schemas/GeoTaxDocument'
     GeoTaxDocument:
       description: Classification results
       properties:
-        version:
-          description: Service version
-          type: string
-        language:
-          description: Text language
-          type: string
-        categories:
-          description: Categories
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
         extraData:
+          type: object
           description: Extra-data containing GeoJSON data
           properties:
             geojson:
@@ -204,104 +199,6 @@ components:
       items:
         minimum: 4
         type: number
-    AnalysisRequest:
-      description: Request
-      properties:
-        document:
-          $ref: '#/components/schemas/Document'
-    Document:
-      description: Document
-      properties:
-        text:
-          description: The document's text
-          type: string
-    DocumentPosition:
-      description: Position
-      properties:
-        start:
-          description: Zero-based position of the first character
-          format: int64
-          type: integer
-        end:
-          description: Zero-based position of the character after the last
-          format: int64
-          type: integer
-    ServiceError:
-      description: Error information
-      properties:
-        code:
-          description: Error code
-          type: string
-        message:
-          description: Error message
-          type: string
-    CategorizeResponse:
-      description: Classification resource response
-      properties:
-        success:
-          description: Operation completed successfully (true/false)
-          type: boolean
-        errors:
-          description: Service errors
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceError'
-        data:
-          $ref: '#/components/schemas/CategorizeDocument'
-    Category:
-      description: Category
-      properties:
-        id:
-          description: Category ID
-          type: string
-        label:
-          description: Category label
-          type: string
-        hierarchy:
-          description: Hierarchical path
-          type: array
-          items:
-            type: string
-        score:
-          description: Score assigned to the category to represent its relevance
-          format: int32
-          minimum: 0
-          type: integer
-        winner:
-          description: True if the category is deemed particularly relevant
-          type: boolean
-        namespace:
-          description: Name of the software package containing the reference taxonomy
-          type: string
-        frequency:
-          description: >-
-            Score expressed as a percentage of the sum of the scores of all the
-            candidate categories, winners and not (see the **score** property)
-          format: float
-          maximum: 100
-          minimum: 0
-          type: number
-        positions:
-          description: >-
-            Positions of the portions of text that contributed to the selection
-            of the category
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentPosition'
-    CategorizeDocument:
-      description: Categorization data
-      properties:
-        version:
-          description: Service version
-          type: string
-        language:
-          description: Text language
-          type: string
-        categories:
-          description: Categories
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
   securitySchemes:
     bearerAuth:
       bearerFormat: JWT

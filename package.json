@@ -1,0 +1,24 @@
+{
+  "name": "nlapi-openapi-specification",
+  "version": "1.0.0",
+  "description": "This project contains the **OpenAPI Documents** for the expert.ai Natural Language API v2 in the form of YAML format files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "openapi bundle full_nlapi.yaml pii.yaml nlapi.yaml emotional-traits-w-main-groups.yaml geotax-w-geojson.yaml writeprint.yaml temporal-information.yaml -o ./dist/",
+    "lint": "openapi lint full_nlapi.yaml pii.yaml nlapi.yaml emotional-traits-w-main-groups.yaml geotax-w-geojson.yaml writeprint.yaml temporal-information.yaml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AleksandrinaKovachka/nlapi-openapi-specification.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AleksandrinaKovachka/nlapi-openapi-specification/issues"
+  },
+  "homepage": "https://github.com/AleksandrinaKovachka/nlapi-openapi-specification#readme",
+  "dependencies": {
+    "@redocly/openapi-cli": "^1.0.0-beta.79"
+  }
+}

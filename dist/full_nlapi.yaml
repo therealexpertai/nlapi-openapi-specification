@@ -1,0 +1,2162 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: https://expert.ai/
+  description: >
+    Natural Language API provides a comprehensive set of natural language
+    understanding capabilities based on expert.ai technology: <ul>
+      <li>Context based document analysis, comprising:</li>
+      <ul>
+        <li>Deep linguistic analysis, which, in turn, comprises:</li>
+        <ul>
+          <li>Text subdivision</li>
+          <li>Part-of-speech tagging</li>
+          <li>Morphological analysis</li>
+          <li>Lemmatization</li>
+          <li>Syntactic analysis</li>
+          <li>Semantic analysis</li>
+        </ul>
+        <li>Keyphrase extraction</li>
+        <li>Named entity recognition</li>
+        <li>Relation extraction</li>
+        <li>Sentiment analysis</li>
+      </ul>
+      <li>Taxonomy based document classification</li>
+      <li>Information detection performed by detectors</li>
+    </ul>
+  title: expert.ai Natural Language API
+  version: v2
+externalDocs:
+  description: API documentation
+  url: https://docs.expert.ai/nlapi/v2/
+servers:
+  - url: https://nlapi.expert.ai/v2
+tags:
+  - description: Document analysis API endpoints
+    name: Document analysis
+  - description: Document classification API endpoints
+    name: Document classification
+  - description: Information detection API endpoints
+    name: Information detection
+paths:
+  /analyze/{context}/{language}:
+    post:
+      description: >-
+        Full analysis (i.e., sum of all available partial analyses) of the
+        posted text
+      parameters:
+        - description: >-
+            Context name; use the `contexts` resource to discover available
+            contexts
+          in: path
+          name: context
+          required: true
+          schema:
+            type: string
+        - description: Document language (code)
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be analyzed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyzeResponse'
+          description: Resource response
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Full analysis
+      tags:
+        - Document analysis
+  /analyze/{context}/{language}/{analysis}:
+    post:
+      description: |
+        Specific analysis of the posted text.
+        Available analyses are:
+        <ul>
+          <li><strong>disambiguation</strong>: linguistic analysis (text subdivision, part-of-speech tagging, morphological analysis, lemmatization, syntactic analysis and semantic analysis)</li>
+          <li><strong>relevants</strong>: keyphrase extraction</li>
+          <li><strong>entities</strong>: named entity recognition</li>
+          <li><strong>relations</strong>: relation extraction</li>
+          <li><strong>sentiment</strong>: sentiment analysis</li>
+        </ul>
+      parameters:
+        - description: >-
+            Context name; use the `contexts` resource to discover available
+            contexts
+          in: path
+          name: context
+          required: true
+          schema:
+            type: string
+        - description: Document language (code)
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+        - description: >-
+            Analysis name; use the `contexts` resource to determine if the
+            context provides that analysis for the chosen language
+          in: path
+          name: analysis
+          required: true
+          schema:
+            enum:
+              - disambiguation
+              - relevants
+              - entities
+              - sentiment
+              - relations
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be analyzed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyzeResponse'
+          description: Resource response
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Specific partial analysis
+      tags:
+        - Document analysis
+  /categorize/{taxonomy}/{language}:
+    post:
+      description: Classification of the posted text
+      parameters:
+        - description: >-
+            Taxonomy name; use the `taxonomies` resource to discover available
+            taxonomies
+          in: path
+          name: taxonomy
+          required: true
+          schema:
+            type: string
+        - description: >-
+            Document language (code); use the `taxonomies` resource to discover
+            the languages for which the taxonomy is available
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be classified
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorizeResponse'
+          description: Resource response
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Classification
+      tags:
+        - Document classification
+  /categorize/geotax/{language}:
+    post:
+      description: GeoJSON classification of the posted text
+      parameters:
+        - description: >-
+            Document language (code); use the `taxonomies` resource of the
+            expert.ai Natural Language API to discover the languages that the
+            classification module supports
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+        - description: Classification features, specify `extradata` to obtain GeoJSON data
+          in: query
+          name: features
+          required: true
+          schema:
+            type: string
+            enum:
+              - extradata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be classified
+      responses:
+        '200':
+          $ref: '#/components/responses/200GeoTaxCategorize'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Classification
+      tags:
+        - Document classification
+  /categorize/emotional-traits/{language}:
+    post:
+      description: Classification of the posted text
+      parameters:
+        - description: >-
+            Two letter ISO code of the input document language. Currently the
+            `emotional-traits` taxonomy is available for the English language
+            (language code `en`), support for more languages will be added in
+            future releases.
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - en
+              - de
+        - description: Classification features, specify `extradata` to obtain main groups
+          in: query
+          name: features
+          required: true
+          schema:
+            type: string
+            enum:
+              - extradata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be classified
+      responses:
+        '200':
+          $ref: '#/components/responses/200EmotionalTraitsCategorize'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: >-
+        Emotional traits classification with extra data containing the main
+        groups of emotions
+      tags:
+        - Document classification
+  /contexts:
+    get:
+      description: Information about available contexts
+      responses:
+        '200':
+          $ref: '#/components/responses/200Contexts'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Contexts information
+      tags:
+        - Document analysis
+  /taxonomies:
+    get:
+      description: Information about available taxonomies
+      responses:
+        '200':
+          $ref: '#/components/responses/200Taxonomies'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Taxonomies information
+      tags:
+        - Document classification
+  /taxonomies/{taxonomy}/{language}:
+    get:
+      description: Detailed information about a taxonomy for a given language
+      parameters:
+        - description: Taxonomy name
+          in: path
+          name: taxonomy
+          required: true
+          schema:
+            type: string
+        - description: >-
+            Taxonomy language (code); use the `taxonomies` resource to discover
+            the languages that the taxonomy supports
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+      responses:
+        '200':
+          $ref: '#/components/responses/200Taxonomy'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Taxonomy tree
+      tags:
+        - Document classification
+  /detectors:
+    get:
+      description: Information about available detectors
+      responses:
+        '200':
+          $ref: '#/components/responses/200Detectors'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Detectors information
+      tags:
+        - Information detection
+  /detect/pii/{language}:
+    post:
+      tags:
+        - Information detection
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/200PIIDetection'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+  /detect/writeprint/{language}:
+    post:
+      tags:
+        - Information detection
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/200WriteprintDetection'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+  /detect/temporal-information/{language}:
+    post:
+      tags:
+        - Information detection
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/200TemporalInformationDetection'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+  schemas:
+    Document:
+      description: Document
+      properties:
+        text:
+          description: The document's text
+          type: string
+      required:
+        - text
+    AnalysisRequest:
+      description: Request
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+      required:
+        - document
+    ServiceError:
+      description: Error information
+      properties:
+        code:
+          description: Error code
+          type: string
+        message:
+          description: Error message
+          type: string
+    Paragraph:
+      description: Paragraph info
+      properties:
+        start:
+          description: Zero-based position of the first character of the paragraph
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the paragraph
+          format: int64
+          type: integer
+        sentences:
+          description: >-
+            Indexes (in the `sentences` array) of the sentences that make up the
+            paragraph
+          type: array
+          items:
+            description: Sentence index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Sentence:
+      description: Sentence info
+      properties:
+        start:
+          description: Zero-based position of the first character of the sentence
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the sentence
+          format: int64
+          type: integer
+        phrases:
+          description: >-
+            Indexes (in the `phrases` array) of the phrases that make up the
+            sentence
+          type: array
+          items:
+            description: Phrase index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Phrase:
+      description: Phrase info
+      properties:
+        start:
+          description: Zero-based position of the first character of the phrase
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the phrase
+          format: int64
+          type: integer
+        tokens:
+          description: >-
+            Indexes (in the `tokens` array) of the tokens that make up the
+            phrase
+          type: array
+          items:
+            description: Token index
+            format: int32
+            type: integer
+          uniqueItems: true
+        type:
+          description: Phrase type
+          type: string
+    VirtualSyncon:
+      description: >-
+        A concept that does not exist in the Knowledge Graph but heuristics
+        recognized as a type of a known parent concept.
+      properties:
+        id:
+          description: >-
+            ID used to mark all the occurrences of the virtual concept in the
+            text
+          format: int64
+          type: integer
+        parent:
+          description: >-
+            Parent concept; ID is used to look up Knowledge Graph data in the
+            `knowledge` array
+          format: int64
+          type: integer
+    Dependency:
+      description: Dependency info
+      properties:
+        id:
+          description: Zero-based cardinal number of the token
+          format: int64
+          type: integer
+        head:
+          description: Number of the head token
+          format: int64
+          type: integer
+        label:
+          description: >-
+            (<a
+            href='https://universaldependencies.org/u/dep/#universal-dependency-relations'
+            target='_blank'>Dependency relation</a> between the token and the
+            head token
+          type: string
+    Atom:
+      description: Atom info
+      properties:
+        start:
+          description: Zero-based position of the first character of the atom
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the atom
+          format: int64
+          type: integer
+        type:
+          description: Expert.ai type
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+    Token:
+      description: Token info
+      properties:
+        start:
+          description: Zero-based position of the first character of the token
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the token
+          format: int64
+          type: integer
+        type:
+          description: Expert.ai type
+          type: string
+        pos:
+          description: >-
+            <a href='https://universaldependencies.org/u/pos/'>Universal
+            Dependencies part-of-speech tag</a>
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        morphology:
+          description: >-
+            A semicolon separated list of <a
+            href='https://universaldependencies.org/format.html#morphological-annotation'>CoNLL-U
+            format</a> morphological features
+          type: string
+        dependency:
+          $ref: '#/components/schemas/Dependency'
+        atoms:
+          description: Atoms that make up the token
+          type: array
+          items:
+            $ref: '#/components/schemas/Atom'
+        paragraph:
+          description: Paragraph index in the `paragraphs` array
+          format: int64
+          type: integer
+        sentence:
+          description: Sentence index in the `sentences` array
+          format: int64
+          type: integer
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+    MainSentence:
+      description: Main sentence
+      properties:
+        value:
+          description: Sentence text
+          type: string
+        score:
+          description: Score assigned to the sentence to represent its relevance
+          format: float
+          type: number
+        start:
+          description: Zero-based position of the first character of the sentence
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the sentence
+          format: int64
+          type: integer
+    DocumentPosition:
+      description: Position
+      properties:
+        start:
+          description: Zero-based position of the first character
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the character after the last
+          format: int64
+          type: integer
+    MainPhrase:
+      description: Main phrase info
+      properties:
+        value:
+          description: Phrase text
+          type: string
+        score:
+          description: Score assigned to the phrase to represent its relevance
+          format: float
+          type: number
+        positions:
+          description: Positions of phrase occurrences
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    MainLemma:
+      description: Main lemma info
+      properties:
+        value:
+          description: Lemma
+          type: string
+        score:
+          description: Score assigned to the lemma to represent its relevance
+          format: float
+          type: number
+        positions:
+          description: Positions of lemma occurrences
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    MainSyncon:
+      description: Main syncon info
+      properties:
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        lemma:
+          description: Lemma
+          type: string
+        score:
+          description: Score assigned to the syncon to represent its relevance
+          format: float
+          type: number
+        positions:
+          description: Positions of the expressions of the syncon
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    InferredAttribute:
+      description: Inferred attribute
+      properties:
+        attribute:
+          description: Attribute name
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          type: integer
+          format: int64
+        type:
+          description: Attribute type
+          type: string
+        attributes:
+          description: Attribute's attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    Entity:
+      description: Entity info
+      properties:
+        type:
+          description: Entity type
+          type: string
+        lemma:
+          description: Base form (lemma) of the entity name
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        positions:
+          description: Positions of the entity's mentions
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+        relevance:
+          description: Entity relevance
+          format: int64
+          type: integer
+        attributes:
+          description: >-
+            Entity attributes inferred from the context or from the Knowledge
+            Graph
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    DocumentTopic:
+      description: Knowledge Graph topic info
+      properties:
+        id:
+          description: Language-independent topic ID
+          format: int64
+          type: integer
+        label:
+          description: Topic name
+          type: string
+        score:
+          description: Score assigned to the topic to represent its relevance
+          format: float
+          type: number
+        winner:
+          description: True if the topic is deemed particularly relevant
+          type: boolean
+    Property:
+      description: Syncon property
+      properties:
+        type:
+          description: Property type
+          type: string
+        value:
+          description: Property value
+          type: string
+    KnowledgeEntry:
+      description: Knowledge Graph data for a syncon
+      properties:
+        syncon:
+          description: Syncon ID
+          format: int64
+          type: integer
+        label:
+          description: >-
+            Textual rendering of the general conceptual category for the token
+            in the Knowledge Graph
+          type: string
+        properties:
+          description: Syncon extended properties
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+    SentimentItem:
+      description: Item or chain of items expressing sentiment
+      properties:
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        sentiment:
+          description: Item/chain sentiment score
+          type: number
+          format: float
+        items:
+          description: Items expressing sentiment
+          type: array
+          items:
+            $ref: '#/components/schemas/SentimentItem'
+    RelationVerb:
+      description: Verb of a relation
+      properties:
+        text:
+          description: Verb text
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        type:
+          description: Type
+          type: string
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+        relevance:
+          description: Relevance
+          format: int64
+          type: integer
+    RelatedItem:
+      description: In a relation, a term that's directly or indirectly related to the verb
+      properties:
+        relation:
+          description: Verb-item relation
+          type: string
+        text:
+          description: Item text
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        type:
+          description: Type
+          type: string
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+        relevance:
+          description: Relevance
+          format: int64
+          type: integer
+        related:
+          description: Related terms
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedItem'
+    Relation:
+      description: Verb-mediated relation
+      properties:
+        verb:
+          $ref: '#/components/schemas/RelationVerb'
+        related:
+          description: Related items
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedItem'
+    AnalyzeDocument:
+      description: Analysis data
+      properties:
+        version:
+          description: Service version
+          type: string
+        content:
+          description: Analyzed text
+          type: string
+        language:
+          description: Text language
+          type: string
+        paragraphs:
+          description: Paragraphs
+          type: array
+          items:
+            $ref: '#/components/schemas/Paragraph'
+        sentences:
+          description: Sentences
+          type: array
+          items:
+            $ref: '#/components/schemas/Sentence'
+        phrases:
+          description: Phrases
+          type: array
+          items:
+            $ref: '#/components/schemas/Phrase'
+        tokens:
+          description: Tokens
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        mainSentences:
+          description: Main sentences
+          type: array
+          items:
+            $ref: '#/components/schemas/MainSentence'
+        mainPhrases:
+          description: Main phrases
+          type: array
+          items:
+            $ref: '#/components/schemas/MainPhrase'
+        mainLemmas:
+          description: Main lemmas
+          type: array
+          items:
+            $ref: '#/components/schemas/MainLemma'
+        mainSyncons:
+          description: Main syncons
+          type: array
+          items:
+            $ref: '#/components/schemas/MainSyncon'
+        entities:
+          description: Entities
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        topics:
+          description: Knowledge Graph topics
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentTopic'
+        knowledge:
+          description: Knowledge Graph syncons data
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeEntry'
+        sentiment:
+          description: Sentiment
+          properties:
+            overall:
+              description: Overall text sentiment score
+              type: number
+              format: float;
+            negativity:
+              description: Text negativity
+              type: number
+              format: float
+            positivity:
+              description: Text positivity
+              type: number
+              format: float
+            items:
+              description: Items expressing sentiment
+              type: array
+              items:
+                $ref: '#/components/schemas/SentimentItem'
+        relations:
+          description: Verb-mediated relations
+          type: array
+          items:
+            $ref: '#/components/schemas/Relation'
+    AnalyzeResponse:
+      description: Analysis resource response
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          $ref: '#/components/schemas/AnalyzeDocument'
+    Category:
+      description: Category
+      properties:
+        id:
+          description: Category ID
+          type: string
+        label:
+          description: Category label
+          type: string
+        hierarchy:
+          description: Hierarchical path
+          type: array
+          items:
+            type: string
+        score:
+          description: Score assigned to the category to represent its relevance
+          format: int32
+          type: integer
+        winner:
+          description: True if the category is deemed particularly relevant
+          type: boolean
+        namespace:
+          description: Name of the software package containing the reference taxonomy
+          type: string
+        frequency:
+          description: >-
+            Score expressed as a percentage of the sum of the scores of all the
+            candidate categories, winners and not (see the **score** property)
+          format: float
+          type: number
+        positions:
+          description: >-
+            Positions of the portions of text that contributed to the selection
+            of the category
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    CategorizeDocument:
+      description: Categorization data
+      properties:
+        version:
+          description: Service version
+          type: string
+        language:
+          description: Text language
+          type: string
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    CategorizeResponse:
+      description: Classification resource response
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          $ref: '#/components/schemas/CategorizeDocument'
+    point:
+      title: Point
+      description: |
+        For type `Point`, the `coordinates` member must be a single position.
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+        coordinates:
+          description: lat long coordinates
+          minimum: 2
+          maximum: 2
+          type: number
+    feature:
+      title: Feature
+      description: >-
+        A GeoJSON object with the type `Feature` is a feature object. * A
+        feature object must have a member with the name `geometry`. The value of
+        the geometry member is a geometry object as defined above or a JSON null
+        value. * A feature object must have a member with the name `properties`.
+        The value of the properties member is an object (any JSON object or a
+        JSON null value). * If a feature has a commonly used identifier, that
+        identifier should be included as a member of the feature object with the
+        name `id`.
+      type: object
+      required:
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum:
+            - Feature
+        geometry:
+          title: Feature Geometry
+          description: >
+            The `geometry` member specifies the location Geometry Object of the
+            feature.  If the feature has no location, the value should be null.
+          type: object
+          $ref: '#/components/schemas/point'
+        properties:
+          title: Feature Properties
+          description: >
+            The `properties` member is an object containing application-specific
+            attributes of the feature.
+          type: object
+          properties:
+            id:
+              description: The GeoTax id
+              type: string
+            geonameid:
+              description: The geonameid of place
+              type: string
+            name:
+              description: The Geo Place name
+              type: string
+    boundingBox:
+      title: Bounding Box
+      type: array
+      description: >
+        To include information on the coordinate range for geometries, features,
+        or feature collections, a GeoJSON object may have a member named `bbox`.
+        The value of the bbox member must be a 2*n array where n is the number
+        of dimensions represented in the contained geometries, with the lowest
+        values for all axes followed by the highest values. The axes order of a
+        bbox follows the axes order of geometries. In addition, the coordinate
+        reference system for the bbox is assumed to match the coordinate
+        reference system of the GeoJSON object of which it is a member.
+      minItems: 4
+      items:
+        minimum: 4
+        type: number
+    featureCollection:
+      title: Feature Collection
+      description: >-
+        A GeoJSON object with the type `FeatureCollection` is a feature
+        collection object. An object of type `FeatureCollection` must have a
+        member with the name `features`. The value corresponding to `features`
+        is an array. Each element in the array is a feature object as defined
+        above.
+      required:
+        - features
+      properties:
+        type:
+          type: string
+          enum:
+            - FeatureCollection
+        features:
+          title: Features
+          type: array
+          items:
+            $ref: '#/components/schemas/feature'
+        bbox:
+          $ref: '#/components/schemas/boundingBox'
+    geoJsonBase:
+      description: >
+        This schema is solely an abstract definition to share the common GeoJSON
+        attributes to the concrete GeoJSON types.
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/featureCollection'
+    GeoTaxDocument:
+      description: Classification results
+      properties:
+        extraData:
+          type: object
+          description: Extra-data containing GeoJSON data
+          properties:
+            geojson:
+              $ref: '#/components/schemas/geoJsonBase'
+    GeoTaxResponse:
+      description: Resource response
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          allOf:
+            - $ref: '#/components/schemas/CategorizeDocument'
+            - $ref: '#/components/schemas/GeoTaxDocument'
+    Group:
+      description: Group of emotional traits
+      properties:
+        id:
+          description: ID of the category corresponding to the group inside the taxonomy
+          type: string
+        label:
+          description: Label of the category corresponding to the group inside the taxonomy
+          type: string
+        position:
+          description: Group rank
+          format: int32
+          type: integer
+    EmotionalTraitsDocument:
+      description: Categorization data
+      properties:
+        extraData:
+          type: object
+          description: Extra-data containing main groups
+          properties:
+            groups:
+              description: Main groups
+              type: array
+              items:
+                $ref: '#/components/schemas/Group'
+    EmotionalTraitsResponse:
+      description: Classification resource response
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          allOf:
+            - $ref: '#/components/schemas/CategorizeDocument'
+            - $ref: '#/components/schemas/EmotionalTraitsDocument'
+    ContextLanguageInfo:
+      description: Information about a supported language and available analyses
+      properties:
+        code:
+          description: Language code
+          type: string
+        name:
+          description: Language name
+          type: string
+        analyses:
+          description: Available analyses
+          type: array
+          items:
+            type: string
+    ContextInfo:
+      description: Information about a context
+      properties:
+        name:
+          description: Context name
+          type: string
+        description:
+          description: Context description
+          type: string
+        languages:
+          description: Information about supported languages and available analyses
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextLanguageInfo'
+    ContextsResponse:
+      description: Available contexts
+      properties:
+        contexts:
+          description: List of contexts' information
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextInfo'
+    LanguageInfo:
+      description: Information about a supported language
+      properties:
+        code:
+          description: Language code
+          type: string
+        name:
+          description: Language name
+          type: string
+    TaxonomyInfo:
+      description: Summary information about a taxonomy
+      properties:
+        name:
+          description: Taxonomy name
+          type: string
+        description:
+          description: Taxonomy description
+          type: string
+        contract:
+          description: >-
+            OpenAPI document describing extra ways to use the taxonomy and their
+            outputs
+          type: string
+        languages:
+          description: Supported languages
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageInfo'
+    TaxonomiesResponse:
+      description: Available taxonomies
+      properties:
+        texonomies:
+          description: List of taxonomies' information
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyInfo'
+    TaxonomyCategory:
+      description: Taxonomy category
+      properties:
+        id:
+          description: Category ID
+          type: string
+        label:
+          description: Category label
+          type: string
+        categories:
+          description: Sub-categories
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyCategory'
+    Taxonomy:
+      description: A taxonomy's categories tree
+      properties:
+        namespace:
+          description: Name of the software package containing the reference taxonomy
+          type: string
+        taxonomy:
+          description: Categories tree
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyCategory'
+    TaxonomyResponse:
+      description: Taxonomy categories
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Taxonomy'
+    DetectorInfo:
+      description: Summary information about a detector
+      properties:
+        name:
+          description: Detector name
+          type: string
+        description:
+          description: Detector description
+          type: string
+        contract:
+          description: OpenAPI document describing the use of the detector and its output
+          type: string
+        languages:
+          description: Supported languages
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageInfo'
+    DetectorsResponse:
+      description: Available detectors
+      properties:
+        detectors:
+          description: List of detectors' information
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectorInfo'
+    Extraction:
+      description: Extraction record
+      properties:
+        namespace:
+          description: Software package name
+          type: string
+        template:
+          description: Extraction record template
+          type: string
+        fields:
+          description: Extraction record fields
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Field name
+                type: string
+              value:
+                description: Field value
+                type: string
+              positions:
+                description: >-
+                  Positions of parts of the text corresponding to the field
+                  value
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentPosition'
+    DetectorBaseDocument:
+      description: Base document for all detectors
+      properties:
+        version:
+          description: Service version
+          type: string
+        content:
+          description: Analyzed text
+          type: string
+        language:
+          description: Text language
+          type: string
+        paragraphs:
+          description: Paragraphs
+          type: array
+          items:
+            $ref: '#/components/schemas/Paragraph'
+        sentences:
+          description: Sentences
+          type: array
+          items:
+            $ref: '#/components/schemas/Sentence'
+        phrases:
+          description: Phrases
+          type: array
+          items:
+            $ref: '#/components/schemas/Phrase'
+        tokens:
+          description: Tokens
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        entities:
+          description: Entities
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        knowledge:
+          description: Knowledge Graph syncons' data
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeEntry'
+        extractions:
+          description: Extracted information
+          type: array
+          items:
+            $ref: '#/components/schemas/Extraction'
+    PIIBaseItem:
+      description: Type with properties inherited by all JSON-LD graph PII types
+      properties:
+        '@type':
+          description: JSON-LD graph item type
+          type: string
+        '@id':
+          description: JSON-LD graph item id
+          type: string
+        matches:
+          description: Text matches of items' properties
+          type: array
+          items:
+            properties:
+              start:
+                description: >-
+                  Property value in the text, zero-based position of the first
+                  character
+                format: int64
+                type: integer
+              end:
+                description: >-
+                  Property value in the text, zero-based position of the
+                  character after the last
+                format: int64
+                type: integer
+              value:
+                description: Property value
+                type: string
+              name:
+                description: Property name
+                type: string
+    PIIPerson:
+      description: Person
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            givenName:
+              type: string
+            familyName:
+              type: string
+            age:
+              type: string
+            gender:
+              type: string
+            nationality:
+              type: string
+            birthDate:
+              type: string
+            birthPlace:
+              type: string
+            deathDate:
+              type: string
+            deathPlace:
+              type: string
+            dateTime:
+              type: array
+              items:
+                type: string
+            person:
+              type: string
+    PIIPostalAddress:
+      description: Postal address
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            address:
+              type: string
+            streetAddress:
+              type: string
+            addressCountry:
+              type: string
+            addressLocality:
+              type: string
+            addressRegion:
+              type: string
+            postOfficeBoxNumber:
+              type: string
+            postalCode:
+              type: string
+    PIIBankAccount:
+      description: Bank account
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            IBAN:
+              type: string
+            IBANcountry:
+              type: string
+    PIIFinancialProduct:
+      description: Credit card
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            creditDebitNumber:
+              type: string
+            CVV:
+              type: string
+            expirationDate:
+              type: string
+    PIItelephone:
+      description: Phone number
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            telephone:
+              type: string
+    PIIemail:
+      description: E-mail address
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            email:
+              type: string
+    PIIURL:
+      description: URL
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            URL:
+              type: string
+    PIIIP:
+      description: Internet Protocol (IP) address
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            IP:
+              type: string
+    PIIItem:
+      description: Personally Identifiable Information (PII) item
+      oneOf:
+        - $ref: '#/components/schemas/PIIPerson'
+        - $ref: '#/components/schemas/PIIPostalAddress'
+        - $ref: '#/components/schemas/PIIBankAccount'
+        - $ref: '#/components/schemas/PIIFinancialProduct'
+        - $ref: '#/components/schemas/PIItelephone'
+        - $ref: '#/components/schemas/PIIemail'
+        - $ref: '#/components/schemas/PIIURL'
+        - $ref: '#/components/schemas/PIIIP'
+    PIIJSONLD:
+      description: JSON-LD format output
+      properties:
+        '@context':
+          type: object
+          description: JSON-LD context
+          properties:
+            '@version':
+              type: string
+            schema:
+              type: string
+            matches:
+              type: string
+            start:
+              type: object
+              properties:
+                '@id':
+                  type: string
+            end:
+              type: object
+              properties:
+                '@id':
+                  type: string
+            text:
+              type: string
+            additionalProperty:
+              type: string
+            URL:
+              type: string
+            IP:
+              type: string
+            type:
+              type: string
+            email:
+              type: string
+            IBAN:
+              type: string
+            IBANcountry:
+              type: string
+            postalAddress:
+              type: string
+            creditDebitNumber:
+              type: string
+            CVV:
+              type: string
+            expirationDate:
+              type: string
+            birthDate:
+              type: string
+            deathDate:
+              type: string
+            dateTime:
+              type: string
+            telephone:
+              type: string
+            address:
+              type: string
+            streetAddress:
+              type: string
+            addressCountry:
+              type: string
+            postalCode:
+              type: string
+            addressLocality:
+              type: string
+            addressRegion:
+              type: string
+            person:
+              type: string
+            age:
+              type: string
+            familyName:
+              type: string
+            gender:
+              type: string
+            givenName:
+              type: string
+            nationality:
+              type: string
+            birthPlace:
+              type: string
+            deathPlace:
+              type: string
+            postOfficeBoxNumber:
+              type: string
+        '@graph':
+          description: JSON-LD graph data
+          type: array
+          items:
+            $ref: '#/components/schemas/PIIItem'
+    PIIExtraData:
+      description: PII Extra Data
+      properties:
+        JSON-LD:
+          $ref: '#/components/schemas/PIIJSONLD'
+    PIIDocument:
+      description: PII Specific Document properties
+      properties:
+        extraData:
+          $ref: '#/components/schemas/PIIExtraData'
+    PIIResponse:
+      description: Detector's response
+      properties:
+        success:
+          description: Success flag
+          type: boolean
+        error:
+          description: Error description
+          properties:
+            code:
+              description: Error code
+              type: string
+            message:
+              description: Error message
+              type: string
+        data:
+          allOf:
+            - $ref: '#/components/schemas/DetectorBaseDocument'
+            - $ref: '#/components/schemas/PIIDocument'
+    ReadabilityIndex:
+      description: A readability index
+      properties:
+        '@type':
+          type: string
+        name:
+          description: Index name
+          type: string
+        value:
+          description: Index value
+          type: number
+        readabilityLevel:
+          description: Degree of difficulty
+          type: string
+    CounterIndex:
+      description: A counter index
+      properties:
+        total:
+          type: number
+    PerSentenceIndex:
+      description: A 'per sentence' index
+      properties:
+        mean:
+          type: number
+        standardDeviation:
+          type: number
+        meanAbsoluteDeviation:
+          type: number
+    WriteptintGraphStructuredIntexes:
+      properties:
+        sentences:
+          $ref: '#/components/schemas/CounterIndex'
+        tokens:
+          $ref: '#/components/schemas/CounterIndex'
+        tokenLengthPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbTypes:
+          $ref: '#/components/schemas/CounterIndex'
+        charactersPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        atomsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        tokensPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        phrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbTypesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        smallFirstLetterSentences:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        capitalFirstLetterSentences:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adjectivesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adverbsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        articlesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        auxiliariesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        conjunctionsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        nounsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        properNounsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        punctuationPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        prepositionsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        pronounsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        particlesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        namedEntitiesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adjectivePhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        conjunctionPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        adverbPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        nounPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        nominalPredicatesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        prepositionPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        relativePhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        verbPhrasesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        emoticonsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        dotsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        multipleDotsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        questionMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        multipleQuestionMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        exclamationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        multipleExclamationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        exclamationMarkQuestionMarkSequencesPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        commasPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        colonsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        semicolonsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        singleQuotationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        doubleQuotationMarksPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        unknownConceptsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        functionWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        commonlyMisspelledWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        mostCommonWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        academicLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        businessLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        crimeLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        laymanLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        legalLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        militaryLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        politicalLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+        socialMediaLanguageWordsPerSentence:
+          $ref: '#/components/schemas/PerSentenceIndex'
+    WriteprintJSONLD:
+      description: JSON-LD format output
+      properties:
+        '@context':
+          description: JSON-LD context
+        '@graph':
+          description: JSON-LD graph data
+          type: array
+          items:
+            type: object
+            properties:
+              '@type':
+                type: string
+              readabilityIndexes:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReadabilityIndex'
+              structureIndexes:
+                $ref: '#/components/schemas/WriteptintGraphStructuredIntexes'
+    WriteprintExtraData:
+      description: Writeprint Extra Data
+      properties:
+        JSON-LD:
+          $ref: '#/components/schemas/WriteprintJSONLD'
+    WriteprintDocument:
+      description: Writeprint Specific Document properties
+      properties:
+        extraData:
+          $ref: '#/components/schemas/WriteprintExtraData'
+    WriteprintResponse:
+      description: Detector's response
+      properties:
+        success:
+          description: Success flag
+          type: boolean
+        error:
+          description: Error description
+          properties:
+            code:
+              description: Error code
+              type: string
+            message:
+              description: Error message
+              type: string
+        data:
+          allOf:
+            - $ref: '#/components/schemas/DetectorBaseDocument'
+            - $ref: '#/components/schemas/WriteprintDocument'
+    TemporalInformationMatch:
+      description: An occurrence of a temporal information in the text
+      properties:
+        '@id':
+          description: Unique identifier
+          type: string
+        start:
+          description: >-
+            Zero-based position of the first character of the portion of text
+            corresponding to the information occurrence
+          format: int64
+          type: integer
+        end:
+          description: >-
+            Zero-based position of the first character after the last of the
+            portion of text corresponding to the information occurrence
+          format: int64
+          type: integer
+        sentence:
+          description: >-
+            Zero-based index of the item of the sentences array representing the
+            sentence in which the occurrence of the information was found
+          format: int64
+          type: integer
+        derived:
+          description: >-
+            Present and true if the match was derived from other temporal
+            information
+          type: boolean
+        referenceTimePoint:
+          description: >-
+            In the case of derived time point, the value of the @id property of
+            another information item representing the base time point
+          type: string
+        referenceTimeSpan:
+          description: >-
+            In the case of derived time point, the value of the @id property of
+            another information item representing the time span that was added
+            to or subtracted from the base time point
+          type: string
+        indefiniteQuantity:
+          description: >-
+            In case of time spans with indefinite quantity, the portion of text
+            expressing the quantity, for example 'some'
+          type: string
+        duration:
+          description: >-
+            In case of time spans that represent a duration, the portion of text
+            expressing the duration, for example 'for'
+          type: string
+        text:
+          description: Portion of text corresponding to the information occurrence
+          type: string
+    TemporalInformationItem:
+      description: An item carrying temporal information
+      properties:
+        '@id':
+          description: Unique identifier
+          type: string
+        '@type':
+          description: JSON-LD graph item type
+          type: string
+        name:
+          description: >-
+            Temporal information expression type, can be 'TimePoint', 'TimeSpan'
+            or 'TimeInterval'
+          type: string
+        value:
+          description: Normalized information
+          type: string
+        matches:
+          description: Occurrences of the information in the text
+          type: array
+          items:
+            $ref: '#/components/schemas/TemporalInformationMatch'
+    TemporalInformationJSONLD:
+      description: JSON-LD format output
+      properties:
+        '@context':
+          description: JSON-LD context
+        '@graph':
+          type: object
+          description: JSON-LD graph data
+          properties:
+            '@id':
+              description: Detector's name
+              type: string
+            items:
+              description: Temporal information items
+              type: array
+              items:
+                $ref: '#/components/schemas/TemporalInformationItem'
+    TemporalInformationExtraData:
+      description: Temporal Information Extra Data
+      properties:
+        JSON-LD:
+          $ref: '#/components/schemas/TemporalInformationJSONLD'
+    TemporalInformationDocument:
+      description: Temporal Information Document properties
+      properties:
+        extraData:
+          $ref: '#/components/schemas/TemporalInformationExtraData'
+    TemporalInformationResponse:
+      description: Detector's response
+      properties:
+        success:
+          description: Success flag
+          type: boolean
+        error:
+          description: Error description
+          properties:
+            code:
+              description: Error code
+              type: string
+            message:
+              description: Error message
+              type: string
+        data:
+          allOf:
+            - $ref: '#/components/schemas/DetectorBaseDocument'
+            - $ref: '#/components/schemas/TemporalInformationDocument'
+  responses:
+    200GeoTaxCategorize:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeoTaxResponse'
+    200EmotionalTraitsCategorize:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EmotionalTraitsResponse'
+    200Contexts:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ContextsResponse'
+    200Taxonomies:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaxonomiesResponse'
+    200Taxonomy:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaxonomyResponse'
+    200Detectors:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DetectorsResponse'
+    200PIIDetection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PIIResponse'
+    200WriteprintDetection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WriteprintResponse'
+    200TemporalInformationDetection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TemporalInformationResponse'

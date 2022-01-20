@@ -18,7 +18,7 @@ paths:
   "/detect/pii/{language}":
     post:
       tags:
-        - PII detection
+        - Information detection
       parameters:
         - name: "language"
           in: path
@@ -29,14 +29,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Request'            
+              $ref: 'nlapi.yaml#/components/schemas/AnalysisRequest'        
       responses:
         "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Response"
+          $ref: "#/components/responses/200PIIDetection"
         "400":
           description: Bad Request
         "401":
@@ -50,280 +46,22 @@ paths:
         "500":
           description: "Internal Server Error"
       security:
-        - bearerAuth: []          
+        - bearerAuth: []  
 components:
   securitySchemes:
     "bearerAuth":
-      bearerFormat: JWT
-      scheme: bearer
-      type: http
+        bearerFormat: JWT
+        scheme: bearer
+        type: http
+  responses:
+    200PIIDetection:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PIIResponse"
   schemas:
-    "Request":
-      description: "Request"
-      properties:
-        "document":
-          description: "Document to analyze"
-          properties:
-            "text":
-              description: "Document's text"
-              type: string
-    "DocumentPosition":
-      description: "Position"
-      properties:
-        "start":
-          description: "Zero-based position of the first character"
-          format: int64
-          type: integer
-        "end":
-          description: "Zero-based position of the character after the last"
-          format: int64
-          type: integer
-    "VirtualSyncon":
-      description: "A concept that does not exist in the Knowledge Graph but heuristics recognized as a type of a known parent concept"
-      properties:
-        "id":
-          description: "ID used to mark all the occurrences of the virtual concept in the text"
-          format: int64
-          type: integer
-        "parent":
-          description: "Parent concept; ID is used to look up Knowledge Graph data in the `knowledge` array"
-          format: int64
-          type: integer
-    "Paragraph":
-      description: "Paragraph info"
-      properties:
-        "start":
-          description: "Zero-based position of the first character of the paragraph"
-          format: int64
-          type: integer
-        "end":
-          description: "Zero-based position of the first character after the paragraph"
-          format: int64
-          type: integer
-        "sentences":
-          description: "Indexes (in the `sentences` array) of the sentences that make up the paragraph"
-          type: array
-          items:
-            description: "Sentence index"
-            format: int64
-            type: integer
-    "Sentence":
-      description: "Sentence info"
-      properties:
-        "start":
-          description: "Zero-based position of the first character of the sentence"
-          format: int64
-          type: integer
-        "end":
-          description: "Zero-based position of the first character after the sentence"
-          format: int64
-          type: integer
-        "phrases":
-          description: "Indexes (in the `phrases` array) of the phrases that make up the sentence"
-          type: array
-          items:
-            description: "Phrase index"
-            format: int64
-            type: integer
-    "Phrase":
-      description: "Phrase info"
-      properties:
-        "start":
-          description: "Zero-based position of the first character of the phrase"
-          format: int64
-          type: integer
-        "end":
-          description: "Zero-based position of the first character after the phrase"
-          format: int64
-          type: integer
-        "tokens":
-          description: "Indexes (in the `tokens` array) of the tokens that make up the phrase"
-          type: array
-          items:
-            description: "Token index"
-            format: int64
-            type: integer
-        "type":
-          description: "Phrase type"
-          type: string
-    "Token":
-      description: "Token info"
-      properties:
-        "start":
-          description: "Zero-based position of the first character of the token"
-          format: int64
-          type: integer
-        "end":
-          description: "Zero-based position of the first character after the token"
-          format: int64
-          type: integer
-        "type":
-          description: "expert.ai type"
-          type: string
-        "pos":
-          description: "<a href='https://universaldependencies.org/u/pos/'>Universal Dependencies part-of-speech tag</a>"
-          type: string
-        "lemma":
-          description: "Lemma"
-          type: string
-        "syncon":
-          description: "ID used to look up Knowledge Graph data in the `knowledge` array"
-          format: int64
-          type: integer
-        "vsyn":
-          $ref: '#/components/schemas/VirtualSyncon'      
-        "morphology":
-          description: "A semicolon separated list of <a
-            href='https://universaldependencies.org/format.html#morphological-annotation'>CoNLL-U format</a> morphological features"
-          type: string
-        "dependency":
-          $ref: '#/components/schemas/Dependency'
-        "atoms":
-          description: "Atoms that make up the token"
-          type: array
-          items:
-            $ref: "#/components/schemas/Atom"
-        "paragraph":
-          description: "Paragraph index in the `paragraphs` array"
-          format: int64
-          type: integer
-        "sentence":
-          description: "Sentence index in the `sentences` array"
-          format: int64
-          type: integer
-        "phrase":
-          description: "Phrase index in the `phrases` array"
-          format: int64
-          type: integer
-    "Atom":
-      description: "Atom info"
-      properties:
-        "start":
-          description: "Zero-based position of the first character of the atom"
-          format: int64
-          type: integer
-        "end":
-          description: "Zero-based position of the first character after the atom"
-          format: int64
-          type: integer
-        "type":
-          description: "expert.ai type"
-          type: string
-        "lemma":
-          description: "Lemma"
-          type: string
-    "Entity":
-      description: "Entity info"
-      properties:
-        "type":
-          description: "Entity type"
-          type: string
-        "lemma":
-          description: "Base form (lemma) of the entity name"
-          type: string
-        "syncon":
-          description: "ID used to look up Knowledge Graph data in the `knowledge` array"
-          format: int64
-          type: integer
-        "positions":
-          description: "Positions of the entity's mentions"
-          type: array
-          items:
-            $ref: "#/components/schemas/DocumentPosition"
-        "relevance":
-          description: "Entity relevance"
-          format: int64
-          type: integer
-        "attributes":
-          description: "Entity attributes inferred from the context or from the Knowledge Graph"
-          type: array
-          items:
-            $ref: '#/components/schemas/InferredAttribute'
-    "Property":
-      description: "Syncon property"
-      properties:
-        "type":
-          description: "Property type"
-          type: string
-        "value":
-          description: "Property value"
-          type: string
-    "Dependency":
-      description: "Dependency info"
-      properties:
-        "id":
-          description: "Zero-based cardinal number of the token"
-          format: int64
-          type: integer
-        "head":
-          description: "Number of the head token"
-          format: int64
-          type: integer
-        "label":
-          description: "<a href='https://universaldependencies.org/u/dep/#universal-dependency-relations' target='_blank'>Dependency relation</a> between the token and the head token"
-          type: string
-    "KnowledgeEntry":
-      description: "Knowledge Graph data for a syncon"
-      properties:
-        "syncon":
-          description: "Syncon ID"
-          format: int64
-          type: integer
-        "label":
-          description: "Textual rendering of the general conceptual category for the token in the Knowledge Graph"
-          type: string
-        "properties":
-          description: "Syncon extended properties"
-          type: array
-          items:
-            $ref: "#/components/schemas/Property"
-    "InferredAttribute":
-      description: "Inferred attribute"
-      properties:
-        "attribute":
-          description: "Attribute name"
-          type: string
-        "lemma":
-          description: "Lemma"
-          type: string
-        "syncon":
-          description: "ID used to look up Knowledge Graph data in the `knowledge` array"
-          type: integer
-          format: int64
-        "type":
-          description: "Attribute type"
-          type: string  
-        "attributes":
-          description: "Attribute's attributes"
-          type: array
-          items:
-            $ref: "#/components/schemas/InferredAttribute"
-    "Extraction":
-      description: "Extraction record"
-      properties:
-        "namespace":
-          description: "Software package name"
-          type: string
-        "template":
-          description: "Extraction record template"
-          type: string
-        "fields":
-          description: "Extraction record fields"
-          type: array
-          items:
-            properties:
-              "name":
-                description: "Field name"
-                type: string
-              "value":
-                description: "Field value"
-                type: string
-              "positions":
-                description: "Positions of parts of the text corresponding to the field value"
-                type: array
-                items:
-                  $ref: "#/components/schemas/DocumentPosition"
-    "PIIBaseItem":
+    PIIBaseItem:
       description: "Type with properties inherited by all JSON-LD graph PII types"
       properties:
         "@type":
@@ -351,7 +89,7 @@ components:
               "name":
                 description: "Property name"
                 type: string
-    "PIIPerson":
+    PIIPerson:
       description: "Person"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
@@ -380,7 +118,7 @@ components:
                 type: string
             "person":
               type: string
-    "PIIPostalAddress":
+    PIIPostalAddress:
       description: "Postal address"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
@@ -399,7 +137,7 @@ components:
               type: string
             "postalCode":
               type: string
-    "PIIBankAccount":
+    PIIBankAccount:
       description: "Bank account"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
@@ -408,7 +146,7 @@ components:
               type: string
             "IBANcountry":
               type: string
-    "PIIFinancialProduct":
+    PIIFinancialProduct:
       description: "Credit card"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
@@ -419,35 +157,35 @@ components:
               type: string
             "expirationDate":
               type: string
-    "PIItelephone":
+    PIItelephone:
       description: "Phone number"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
             "telephone":
               type: string
-    "PIIemail":
+    PIIemail:
       description: "E-mail address"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
             "email":
               type: string
-    "PIIURL":
+    PIIURL:
       description: "URL"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
             "URL":
               type: string
-    "PIIIP":
+    PIIIP:
       description: "Internet Protocol (IP) address"
       allOf:
         - $ref: "#/components/schemas/PIIBaseItem"
         - properties:
             "IP":
               type: string
-    "PIIItem":
+    PIIItem:
       description: "Personally Identifiable Information (PII) item"
       oneOf:
         - $ref: "#/components/schemas/PIIPerson"
@@ -458,154 +196,116 @@ components:
         - $ref: "#/components/schemas/PIIemail"
         - $ref: "#/components/schemas/PIIURL"
         - $ref: "#/components/schemas/PIIIP"
-    "Response":
+    PIIJSONLD:
+      description: "JSON-LD format output"
+      properties:
+        "@context":
+          type: object
+          description: "JSON-LD context"
+          properties:
+            "@version":
+              type: string
+            "schema":
+              type: string
+            "matches":
+              type: string
+            "start":
+              type: object
+              properties:
+                "@id":
+                  type: string
+            "end":
+              type: object
+              properties:
+                "@id":
+                  type: string
+            "text":
+              type: string
+            "additionalProperty":
+              type: string
+            "URL":
+              type: string
+            "IP":
+              type: string
+            "type":
+              type: string
+            "email":
+              type: string
+            "IBAN":
+              type: string
+            "IBANcountry":
+              type: string
+            "postalAddress":
+              type: string
+            "creditDebitNumber":
+              type: string
+            "CVV":
+              type: string
+            "expirationDate":
+              type: string
+            "birthDate":
+              type: string
+            "deathDate":
+              type: string
+            "dateTime":
+              type: string
+            "telephone":
+              type: string
+            "address":
+              type: string
+            "streetAddress":
+              type: string
+            "addressCountry":
+              type: string
+            "postalCode":
+              type: string
+            "addressLocality":
+              type: string
+            "addressRegion":
+              type: string
+            "person":
+              type: string
+            "age":
+              type: string
+            "familyName":
+              type: string
+            "gender":
+              type: string
+            "givenName":
+              type: string
+            "nationality":
+              type: string
+            "birthPlace":
+              type: string
+            "deathPlace":
+              type: string
+            "postOfficeBoxNumber":
+              type: string
+        "@graph":
+          description: "JSON-LD graph data"
+          type: array
+          items:
+            $ref: "#/components/schemas/PIIItem"
+    PIIExtraData: 
+      description: "PII Extra Data"
+      properties:
+        "JSON-LD":
+          $ref: "#/components/schemas/PIIJSONLD"
+    PIIDocument:
+      description: "PII Specific Document properties"
+      properties:
+        "extraData":
+          $ref: "#/components/schemas/PIIExtraData"
+    PIIResponse:
       description: "Detector's response"
       properties:
         "success":
           description: "Success flag"
           type: boolean
         "error":
-          description: "Error description"
-          properties:
-            "code":
-              description: "Error code"
-              type: string
-            "message":
-              description: "Error message"
-              type: string
+          $ref: 'nlapi.yaml#/components/schemas/ServiceError'
         "data":
-          properties:
-            "version":
-              description: "Service version"
-              type: string
-            "content":
-              description: "Analyzed text"
-              type: string
-            "language":
-              description: "Text language"
-              type: string
-            "paragraphs":
-              description: "Paragraphs"
-              type: array
-              items:
-                $ref: "#/components/schemas/Paragraph"
-            "sentences":
-              description: "Sentences"
-              type: array
-              items:
-                $ref: "#/components/schemas/Sentence"
-            "phrases":
-              description: "Phrases"
-              type: array
-              items:
-                $ref: "#/components/schemas/Phrase"
-            "tokens":
-              description: "Tokens"
-              type: array
-              items:
-                $ref: "#/components/schemas/Token"
-            "entities":
-              description: "Entities"
-              type: array
-              items:
-                $ref: "#/components/schemas/Entity"
-            "knowledge":
-              description: "Knowledge Graph syncons' data"
-              type: array
-              items:
-                $ref: "#/components/schemas/KnowledgeEntry"
-            "extractions":
-              description: "Extracted information"
-              type: array
-              items:
-                $ref: "#/components/schemas/Extraction"
-            "extraData":
-              description: "PII detector specific output"
-              properties:
-                "JSON-LD":
-                  description: "JSON-LD format output"
-                  properties:
-                    "@context":
-                      description: "JSON-LD context"
-                      properties:
-                        "@version":
-                          type: string
-                        "schema":
-                          type: string
-                        "matches":
-                          type: string
-                        "start":
-                          properties:
-                            "@id":
-                              type: string
-                        "end":
-                          properties:
-                            "@id":
-                              type: string
-                        "text":
-                          type: string
-                        "additionalProperty":
-                          type: string
-                        "URL":
-                          type: string
-                        "IP":
-                          type: string
-                        "type":
-                          type: string
-                        "email":
-                          type: string
-                        "IBAN":
-                          type: string
-                        "IBANcountry":
-                          type: string
-                        "postalAddress":
-                          type: string
-                        "creditDebitNumber":
-                          type: string
-                        "CVV":
-                          type: string
-                        "expirationDate":
-                          type: string
-                        "birthDate":
-                          type: string
-                        "deathDate":
-                          type: string
-                        "dateTime":
-                          type: string
-                        "telephone":
-                          type: string
-                        "address":
-                          type: string
-                        "streetAddress":
-                          type: string
-                        "addressCountry":
-                          type: string
-                        "postalCode":
-                          type: string
-                        "addressLocality":
-                          type: string
-                        "addressRegion":
-                          type: string
-                        "person":
-                          type: string
-                        "age":
-                          type: string
-                        "familyName":
-                          type: string
-                        "gender":
-                          type: string
-                        "givenName":
-                          type: string
-                        "nationality":
-                          type: string
-                        "birthPlace":
-                          type: string
-                        "deathPlace":
-                          type: string
-                        "postOfficeBoxNumber":
-                          type: string
-                    "@graph":
-                      description: "JSON-LD graph data"
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/PIIItem"
+          allOf:
+            - $ref: "nlapi.yaml#/components/schemas/DetectorBaseDocument"
+            - $ref: "#/components/schemas/PIIDocument"
+                

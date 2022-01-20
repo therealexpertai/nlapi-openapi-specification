@@ -1,0 +1,671 @@
+openapi: 3.0.3
+info:
+  title: expert.ai PII detector
+  version: v2
+  description: >-
+    PII detector is the Natural Language API extension that detects personally
+    identifiable information
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: https://expert.ai/
+externalDocs:
+  description: API documentation
+  url: https://docs.expert.ai/nlapi/v2/
+servers:
+  - url: https://nlapi.expert.ai/v2
+tags:
+  - name: PII detection
+paths:
+  /detect/pii/{language}:
+    post:
+      tags:
+        - Information detection
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/200PIIDetection'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+  responses:
+    200PIIDetection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PIIResponse'
+  schemas:
+    PIIBaseItem:
+      description: Type with properties inherited by all JSON-LD graph PII types
+      properties:
+        '@type':
+          description: JSON-LD graph item type
+          type: string
+        '@id':
+          description: JSON-LD graph item id
+          type: string
+        matches:
+          description: Text matches of items' properties
+          type: array
+          items:
+            properties:
+              start:
+                description: >-
+                  Property value in the text, zero-based position of the first
+                  character
+                format: int64
+                type: integer
+              end:
+                description: >-
+                  Property value in the text, zero-based position of the
+                  character after the last
+                format: int64
+                type: integer
+              value:
+                description: Property value
+                type: string
+              name:
+                description: Property name
+                type: string
+    PIIPerson:
+      description: Person
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            givenName:
+              type: string
+            familyName:
+              type: string
+            age:
+              type: string
+            gender:
+              type: string
+            nationality:
+              type: string
+            birthDate:
+              type: string
+            birthPlace:
+              type: string
+            deathDate:
+              type: string
+            deathPlace:
+              type: string
+            dateTime:
+              type: array
+              items:
+                type: string
+            person:
+              type: string
+    PIIPostalAddress:
+      description: Postal address
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            address:
+              type: string
+            streetAddress:
+              type: string
+            addressCountry:
+              type: string
+            addressLocality:
+              type: string
+            addressRegion:
+              type: string
+            postOfficeBoxNumber:
+              type: string
+            postalCode:
+              type: string
+    PIIBankAccount:
+      description: Bank account
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            IBAN:
+              type: string
+            IBANcountry:
+              type: string
+    PIIFinancialProduct:
+      description: Credit card
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            creditDebitNumber:
+              type: string
+            CVV:
+              type: string
+            expirationDate:
+              type: string
+    PIItelephone:
+      description: Phone number
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            telephone:
+              type: string
+    PIIemail:
+      description: E-mail address
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            email:
+              type: string
+    PIIURL:
+      description: URL
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            URL:
+              type: string
+    PIIIP:
+      description: Internet Protocol (IP) address
+      allOf:
+        - $ref: '#/components/schemas/PIIBaseItem'
+        - properties:
+            IP:
+              type: string
+    PIIItem:
+      description: Personally Identifiable Information (PII) item
+      oneOf:
+        - $ref: '#/components/schemas/PIIPerson'
+        - $ref: '#/components/schemas/PIIPostalAddress'
+        - $ref: '#/components/schemas/PIIBankAccount'
+        - $ref: '#/components/schemas/PIIFinancialProduct'
+        - $ref: '#/components/schemas/PIItelephone'
+        - $ref: '#/components/schemas/PIIemail'
+        - $ref: '#/components/schemas/PIIURL'
+        - $ref: '#/components/schemas/PIIIP'
+    PIIJSONLD:
+      description: JSON-LD format output
+      properties:
+        '@context':
+          type: object
+          description: JSON-LD context
+          properties:
+            '@version':
+              type: string
+            schema:
+              type: string
+            matches:
+              type: string
+            start:
+              type: object
+              properties:
+                '@id':
+                  type: string
+            end:
+              type: object
+              properties:
+                '@id':
+                  type: string
+            text:
+              type: string
+            additionalProperty:
+              type: string
+            URL:
+              type: string
+            IP:
+              type: string
+            type:
+              type: string
+            email:
+              type: string
+            IBAN:
+              type: string
+            IBANcountry:
+              type: string
+            postalAddress:
+              type: string
+            creditDebitNumber:
+              type: string
+            CVV:
+              type: string
+            expirationDate:
+              type: string
+            birthDate:
+              type: string
+            deathDate:
+              type: string
+            dateTime:
+              type: string
+            telephone:
+              type: string
+            address:
+              type: string
+            streetAddress:
+              type: string
+            addressCountry:
+              type: string
+            postalCode:
+              type: string
+            addressLocality:
+              type: string
+            addressRegion:
+              type: string
+            person:
+              type: string
+            age:
+              type: string
+            familyName:
+              type: string
+            gender:
+              type: string
+            givenName:
+              type: string
+            nationality:
+              type: string
+            birthPlace:
+              type: string
+            deathPlace:
+              type: string
+            postOfficeBoxNumber:
+              type: string
+        '@graph':
+          description: JSON-LD graph data
+          type: array
+          items:
+            $ref: '#/components/schemas/PIIItem'
+    PIIExtraData:
+      description: PII Extra Data
+      properties:
+        JSON-LD:
+          $ref: '#/components/schemas/PIIJSONLD'
+    PIIDocument:
+      description: PII Specific Document properties
+      properties:
+        extraData:
+          $ref: '#/components/schemas/PIIExtraData'
+    PIIResponse:
+      description: Detector's response
+      properties:
+        success:
+          description: Success flag
+          type: boolean
+        error:
+          description: Error description
+          properties:
+            code:
+              description: Error code
+              type: string
+            message:
+              description: Error message
+              type: string
+        data:
+          allOf:
+            - $ref: '#/components/schemas/DetectorBaseDocument'
+            - $ref: '#/components/schemas/PIIDocument'
+    Document:
+      description: Document
+      properties:
+        text:
+          description: The document's text
+          type: string
+      required:
+        - text
+    AnalysisRequest:
+      description: Request
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+      required:
+        - document
+    Paragraph:
+      description: Paragraph info
+      properties:
+        start:
+          description: Zero-based position of the first character of the paragraph
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the paragraph
+          format: int64
+          type: integer
+        sentences:
+          description: >-
+            Indexes (in the `sentences` array) of the sentences that make up the
+            paragraph
+          type: array
+          items:
+            description: Sentence index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Sentence:
+      description: Sentence info
+      properties:
+        start:
+          description: Zero-based position of the first character of the sentence
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the sentence
+          format: int64
+          type: integer
+        phrases:
+          description: >-
+            Indexes (in the `phrases` array) of the phrases that make up the
+            sentence
+          type: array
+          items:
+            description: Phrase index
+            format: int32
+            type: integer
+          uniqueItems: true
+    Phrase:
+      description: Phrase info
+      properties:
+        start:
+          description: Zero-based position of the first character of the phrase
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the phrase
+          format: int64
+          type: integer
+        tokens:
+          description: >-
+            Indexes (in the `tokens` array) of the tokens that make up the
+            phrase
+          type: array
+          items:
+            description: Token index
+            format: int32
+            type: integer
+          uniqueItems: true
+        type:
+          description: Phrase type
+          type: string
+    VirtualSyncon:
+      description: >-
+        A concept that does not exist in the Knowledge Graph but heuristics
+        recognized as a type of a known parent concept.
+      properties:
+        id:
+          description: >-
+            ID used to mark all the occurrences of the virtual concept in the
+            text
+          format: int64
+          type: integer
+        parent:
+          description: >-
+            Parent concept; ID is used to look up Knowledge Graph data in the
+            `knowledge` array
+          format: int64
+          type: integer
+    Dependency:
+      description: Dependency info
+      properties:
+        id:
+          description: Zero-based cardinal number of the token
+          format: int64
+          type: integer
+        head:
+          description: Number of the head token
+          format: int64
+          type: integer
+        label:
+          description: >-
+            (<a
+            href='https://universaldependencies.org/u/dep/#universal-dependency-relations'
+            target='_blank'>Dependency relation</a> between the token and the
+            head token
+          type: string
+    Atom:
+      description: Atom info
+      properties:
+        start:
+          description: Zero-based position of the first character of the atom
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the atom
+          format: int64
+          type: integer
+        type:
+          description: Expert.ai type
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+    Token:
+      description: Token info
+      properties:
+        start:
+          description: Zero-based position of the first character of the token
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the first character after the token
+          format: int64
+          type: integer
+        type:
+          description: Expert.ai type
+          type: string
+        pos:
+          description: >-
+            <a href='https://universaldependencies.org/u/pos/'>Universal
+            Dependencies part-of-speech tag</a>
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        vsyn:
+          $ref: '#/components/schemas/VirtualSyncon'
+        morphology:
+          description: >-
+            A semicolon separated list of <a
+            href='https://universaldependencies.org/format.html#morphological-annotation'>CoNLL-U
+            format</a> morphological features
+          type: string
+        dependency:
+          $ref: '#/components/schemas/Dependency'
+        atoms:
+          description: Atoms that make up the token
+          type: array
+          items:
+            $ref: '#/components/schemas/Atom'
+        paragraph:
+          description: Paragraph index in the `paragraphs` array
+          format: int64
+          type: integer
+        sentence:
+          description: Sentence index in the `sentences` array
+          format: int64
+          type: integer
+        phrase:
+          description: Phrase index in the `phrases` array
+          format: int64
+          type: integer
+    DocumentPosition:
+      description: Position
+      properties:
+        start:
+          description: Zero-based position of the first character
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the character after the last
+          format: int64
+          type: integer
+    InferredAttribute:
+      description: Inferred attribute
+      properties:
+        attribute:
+          description: Attribute name
+          type: string
+        lemma:
+          description: Lemma
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          type: integer
+          format: int64
+        type:
+          description: Attribute type
+          type: string
+        attributes:
+          description: Attribute's attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    Entity:
+      description: Entity info
+      properties:
+        type:
+          description: Entity type
+          type: string
+        lemma:
+          description: Base form (lemma) of the entity name
+          type: string
+        syncon:
+          description: ID used to look up Knowledge Graph data in the `knowledge` array
+          format: int64
+          type: integer
+        positions:
+          description: Positions of the entity's mentions
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+        relevance:
+          description: Entity relevance
+          format: int64
+          type: integer
+        attributes:
+          description: >-
+            Entity attributes inferred from the context or from the Knowledge
+            Graph
+          type: array
+          items:
+            $ref: '#/components/schemas/InferredAttribute'
+    Property:
+      description: Syncon property
+      properties:
+        type:
+          description: Property type
+          type: string
+        value:
+          description: Property value
+          type: string
+    KnowledgeEntry:
+      description: Knowledge Graph data for a syncon
+      properties:
+        syncon:
+          description: Syncon ID
+          format: int64
+          type: integer
+        label:
+          description: >-
+            Textual rendering of the general conceptual category for the token
+            in the Knowledge Graph
+          type: string
+        properties:
+          description: Syncon extended properties
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+    Extraction:
+      description: Extraction record
+      properties:
+        namespace:
+          description: Software package name
+          type: string
+        template:
+          description: Extraction record template
+          type: string
+        fields:
+          description: Extraction record fields
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Field name
+                type: string
+              value:
+                description: Field value
+                type: string
+              positions:
+                description: >-
+                  Positions of parts of the text corresponding to the field
+                  value
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentPosition'
+    DetectorBaseDocument:
+      description: Base document for all detectors
+      properties:
+        version:
+          description: Service version
+          type: string
+        content:
+          description: Analyzed text
+          type: string
+        language:
+          description: Text language
+          type: string
+        paragraphs:
+          description: Paragraphs
+          type: array
+          items:
+            $ref: '#/components/schemas/Paragraph'
+        sentences:
+          description: Sentences
+          type: array
+          items:
+            $ref: '#/components/schemas/Sentence'
+        phrases:
+          description: Phrases
+          type: array
+          items:
+            $ref: '#/components/schemas/Phrase'
+        tokens:
+          description: Tokens
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        entities:
+          description: Entities
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        knowledge:
+          description: Knowledge Graph syncons' data
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeEntry'
+        extractions:
+          description: Extracted information
+          type: array
+          items:
+            $ref: '#/components/schemas/Extraction'

@@ -1,0 +1,303 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: api.inquiry@expert.ai
+    name: expert.ai
+    url: https://expert.ai/
+  description: >
+    The `geotax` taxonomy document classification resources of the expert.ai
+    Natural Language API detect the citations of geographic places in a text and
+    returns the corresponding countries.<br /> The Natural Language API has a
+    [general
+    contract](https://github.com/therealexpertai/nlapi-openapi-specification/blob/master/nlapi.yaml)
+    specifying how to use document classification resources. This specific
+    sub-contract specifies how to use the `geotax taxonomy resources in a
+    special way to also obtain GeoJOSN data that can be used in a GIS
+    (Geographic Information System), for example to highlight in a map the
+    countries the text is about.
+  title: expert.ai Natural Language API - GeoTax classification with GeoJSON
+  version: v2
+servers:
+  - url: https://nlapi.expert.ai/v2
+paths:
+  /categorize/geotax/{language}:
+    post:
+      description: GeoJSON classification of the posted text
+      parameters:
+        - description: >-
+            Document language (code); use the `taxonomies` resource of the
+            expert.ai Natural Language API to discover the languages that the
+            classification module supports
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+        - description: Classification features, specify `extradata` to obtain GeoJSON data
+          in: query
+          name: features
+          required: true
+          schema:
+            type: string
+            enum:
+              - extradata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document to be classified
+      responses:
+        '200':
+          $ref: '#/components/responses/200GeoTaxCategorize'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Classification
+      tags:
+        - Document classification
+components:
+  responses:
+    200GeoTaxCategorize:
+      description: Resource response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeoTaxResponse'
+  schemas:
+    GeoTaxResponse:
+      description: Resource response
+      properties:
+        success:
+          description: Operation completed successfully (true/false)
+          type: boolean
+        errors:
+          description: Service errors
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceError'
+        data:
+          allOf:
+            - $ref: '#/components/schemas/CategorizeDocument'
+            - $ref: '#/components/schemas/GeoTaxDocument'
+    GeoTaxDocument:
+      description: Classification results
+      properties:
+        extraData:
+          type: object
+          description: Extra-data containing GeoJSON data
+          properties:
+            geojson:
+              $ref: '#/components/schemas/geoJsonBase'
+    geoJsonBase:
+      description: >
+        This schema is solely an abstract definition to share the common GeoJSON
+        attributes to the concrete GeoJSON types.
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/featureCollection'
+    point:
+      title: Point
+      description: |
+        For type `Point`, the `coordinates` member must be a single position.
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+        coordinates:
+          description: lat long coordinates
+          minimum: 2
+          maximum: 2
+          type: number
+    feature:
+      title: Feature
+      description: >-
+        A GeoJSON object with the type `Feature` is a feature object. * A
+        feature object must have a member with the name `geometry`. The value of
+        the geometry member is a geometry object as defined above or a JSON null
+        value. * A feature object must have a member with the name `properties`.
+        The value of the properties member is an object (any JSON object or a
+        JSON null value). * If a feature has a commonly used identifier, that
+        identifier should be included as a member of the feature object with the
+        name `id`.
+      type: object
+      required:
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum:
+            - Feature
+        geometry:
+          title: Feature Geometry
+          description: >
+            The `geometry` member specifies the location Geometry Object of the
+            feature.  If the feature has no location, the value should be null.
+          type: object
+          $ref: '#/components/schemas/point'
+        properties:
+          title: Feature Properties
+          description: >
+            The `properties` member is an object containing application-specific
+            attributes of the feature.
+          type: object
+          properties:
+            id:
+              description: The GeoTax id
+              type: string
+            geonameid:
+              description: The geonameid of place
+              type: string
+            name:
+              description: The Geo Place name
+              type: string
+    featureCollection:
+      title: Feature Collection
+      description: >-
+        A GeoJSON object with the type `FeatureCollection` is a feature
+        collection object. An object of type `FeatureCollection` must have a
+        member with the name `features`. The value corresponding to `features`
+        is an array. Each element in the array is a feature object as defined
+        above.
+      required:
+        - features
+      properties:
+        type:
+          type: string
+          enum:
+            - FeatureCollection
+        features:
+          title: Features
+          type: array
+          items:
+            $ref: '#/components/schemas/feature'
+        bbox:
+          $ref: '#/components/schemas/boundingBox'
+    boundingBox:
+      title: Bounding Box
+      type: array
+      description: >
+        To include information on the coordinate range for geometries, features,
+        or feature collections, a GeoJSON object may have a member named `bbox`.
+        The value of the bbox member must be a 2*n array where n is the number
+        of dimensions represented in the contained geometries, with the lowest
+        values for all axes followed by the highest values. The axes order of a
+        bbox follows the axes order of geometries. In addition, the coordinate
+        reference system for the bbox is assumed to match the coordinate
+        reference system of the GeoJSON object of which it is a member.
+      minItems: 4
+      items:
+        minimum: 4
+        type: number
+    Document:
+      description: Document
+      properties:
+        text:
+          description: The document's text
+          type: string
+      required:
+        - text
+    AnalysisRequest:
+      description: Request
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+      required:
+        - document
+    ServiceError:
+      description: Error information
+      properties:
+        code:
+          description: Error code
+          type: string
+        message:
+          description: Error message
+          type: string
+    DocumentPosition:
+      description: Position
+      properties:
+        start:
+          description: Zero-based position of the first character
+          format: int64
+          type: integer
+        end:
+          description: Zero-based position of the character after the last
+          format: int64
+          type: integer
+    Category:
+      description: Category
+      properties:
+        id:
+          description: Category ID
+          type: string
+        label:
+          description: Category label
+          type: string
+        hierarchy:
+          description: Hierarchical path
+          type: array
+          items:
+            type: string
+        score:
+          description: Score assigned to the category to represent its relevance
+          format: int32
+          type: integer
+        winner:
+          description: True if the category is deemed particularly relevant
+          type: boolean
+        namespace:
+          description: Name of the software package containing the reference taxonomy
+          type: string
+        frequency:
+          description: >-
+            Score expressed as a percentage of the sum of the scores of all the
+            candidate categories, winners and not (see the **score** property)
+          format: float
+          type: number
+        positions:
+          description: >-
+            Positions of the portions of text that contributed to the selection
+            of the category
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
+    CategorizeDocument:
+      description: Categorization data
+      properties:
+        version:
+          description: Service version
+          type: string
+        language:
+          description: Text language
+          type: string
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http

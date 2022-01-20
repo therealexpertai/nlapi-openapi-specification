@@ -3,11 +3,10 @@ info:
   contact:
     email: api.inquiry@expert.ai
     name: expert.ai
-    url: 'https://expert.ai/'
+    url: https://expert.ai/
   description: >
     Natural Language API provides a comprehensive set of natural language
-    understanding capabilities based on expert.ai technology:
-    <ul>
+    understanding capabilities based on expert.ai technology: <ul>
       <li>Context based document analysis, comprising:</li>
       <ul>
         <li>Deep linguistic analysis, which, in turn, comprises:</li>
@@ -31,9 +30,9 @@ info:
   version: v2
 externalDocs:
   description: API documentation
-  url: 'https://docs.expert.ai/nlapi/v2/'
+  url: https://docs.expert.ai/nlapi/v2/
 servers:
-  - url: 'https://nlapi.expert.ai/v2'
+  - url: https://nlapi.expert.ai/v2
 tags:
   - description: Document analysis API endpoints
     name: Document analysis
@@ -44,9 +43,13 @@ tags:
 paths:
   /analyze/{context}/{language}:
     post:
-      description: Full analysis (i.e., sum of all available partial analyses) of the posted text
+      description: >-
+        Full analysis (i.e., sum of all available partial analyses) of the
+        posted text
       parameters:
-        - description: Context name; use the `contexts` resource to discover available contexts
+        - description: >-
+            Context name; use the `contexts` resource to discover available
+            contexts
           in: path
           name: context
           required: true
@@ -107,7 +110,9 @@ paths:
           <li><strong>sentiment</strong>: sentiment analysis</li>
         </ul>
       parameters:
-        - description: Context name; use the `contexts` resource to discover available contexts
+        - description: >-
+            Context name; use the `contexts` resource to discover available
+            contexts
           in: path
           name: context
           required: true
@@ -125,7 +130,9 @@ paths:
               - es
               - fr
               - it
-        - description: Analysis name; use the `contexts` resource to determine if the context provides that analysis for the chosen language
+        - description: >-
+            Analysis name; use the `contexts` resource to determine if the
+            context provides that analysis for the chosen language
           in: path
           name: analysis
           required: true
@@ -169,13 +176,17 @@ paths:
     post:
       description: Classification of the posted text
       parameters:
-        - description: Taxonomy name; use the `taxonomies` resource to discover available taxonomies
+        - description: >-
+            Taxonomy name; use the `taxonomies` resource to discover available
+            taxonomies
           in: path
           name: taxonomy
           required: true
           schema:
             type: string
-        - description: Document language (code); use the `taxonomies` resource to discover the languages for which the taxonomy is available
+        - description: >-
+            Document language (code); use the `taxonomies` resource to discover
+            the languages for which the taxonomy is available
           in: path
           name: language
           required: true
@@ -262,8 +273,10 @@ paths:
           name: taxonomy
           required: true
           schema:
-            type: string         
-        - description: Taxonomy language (code); use the `taxonomies` resource to discover the languages that the taxonomy supports
+            type: string
+        - description: >-
+            Taxonomy language (code); use the `taxonomies` resource to discover
+            the languages that the taxonomy supports
           in: path
           name: language
           required: true
@@ -295,13 +308,17 @@ paths:
     post:
       description: Information detection on the posted text
       parameters:
-        - description: Detector name; use the `detectors` resource to discover available detectors
+        - description: >-
+            Detector name; use the `detectors` resource to discover available
+            detectors
           in: path
           name: detector
           required: true
           schema:
             type: string
-        - description: Document language (code); use the `detectors` resource to discover the languages for which the detector is available
+        - description: >-
+            Document language (code); use the `detectors` resource to discover
+            the languages for which the detector is available
           in: path
           name: language
           required: true
@@ -407,16 +424,20 @@ components:
           format: int64
           type: integer
     VirtualSyncon:
-      description: A concept that does not exist in the Knowledge Graph but heuristics recognized as a type of a known parent concept.
+      description: >-
+        A concept that does not exist in the Knowledge Graph but heuristics
+        recognized as a type of a known parent concept.
       properties:
         id:
-          description: ID used to mark all the occurrences of the virtual concept in the text
+          description: >-
+            ID used to mark all the occurrences of the virtual concept in the
+            text
           format: int64
           type: integer
         parent:
           description: >-
-            Parent concept; ID is used to look up Knowledge Graph data in the `knowledge`
-            array
+            Parent concept; ID is used to look up Knowledge Graph data in the
+            `knowledge` array
           format: int64
           type: integer
     Atom:
@@ -481,7 +502,7 @@ components:
           format: int64
           type: integer
         vsyn:
-          $ref: '#/components/schemas/VirtualSyncon'          
+          $ref: '#/components/schemas/VirtualSyncon'
         morphology:
           description: >-
             A semicolon separated list of <a
@@ -672,7 +693,7 @@ components:
           format: int64
         type:
           description: Attribute type
-          type: string  
+          type: string
         attributes:
           description: Attribute's attributes
           type: array
@@ -701,7 +722,9 @@ components:
           format: int64
           type: integer
         attributes:
-          description: Entity attributes inferred from the context or from the Knowledge Graph
+          description: >-
+            Entity attributes inferred from the context or from the Knowledge
+            Graph
           type: array
           items:
             $ref: '#/components/schemas/InferredAttribute'
@@ -780,7 +803,9 @@ components:
           format: int64
           type: integer
         label:
-          description: Textual rendering of the general conceptual category for the token in the Knowledge Graph
+          description: >-
+            Textual rendering of the general conceptual category for the token
+            in the Knowledge Graph
           type: string
         properties:
           description: Syncon extended properties
@@ -832,31 +857,33 @@ components:
           items:
             $ref: '#/components/schemas/RelatedItem'
     Extraction:
-      description: "Extraction record"
+      description: Extraction record
       properties:
-        "namespace":
-          description: "Software package name"
+        namespace:
+          description: Software package name
           type: string
-        "template":
-          description: "Extraction record template"
+        template:
+          description: Extraction record template
           type: string
-        "fields":
-          description: "Extraction record fields"
+        fields:
+          description: Extraction record fields
           type: array
           items:
             type: object
             properties:
-              "name":
-                description: "Field name"
+              name:
+                description: Field name
                 type: string
-              "value":
-                description: "Field value"
+              value:
+                description: Field value
                 type: string
-              "positions":
-                description: "Positions of parts of the text corresponding to the field value"
+              positions:
+                description: >-
+                  Positions of parts of the text corresponding to the field
+                  value
                 type: array
                 items:
-                  $ref: "#/components/schemas/DocumentPosition"
+                  $ref: '#/components/schemas/DocumentPosition'
     AnalyzeDocument:
       description: Analysis data
       properties:
@@ -1048,7 +1075,7 @@ components:
           description: Available analyses
           type: array
           items:
-            type: string 
+            type: string
     ContextInfo:
       description: Information about a context
       properties:
@@ -1082,7 +1109,9 @@ components:
           description: Taxonomy description
           type: string
         contract:
-          description: OpenAPI document describing extra ways to use the taxonomy and their outputs
+          description: >-
+            OpenAPI document describing extra ways to use the taxonomy and their
+            outputs
           type: string
         languages:
           description: Supported languages
@@ -1104,16 +1133,16 @@ components:
           items:
             $ref: '#/components/schemas/TaxonomyCategory'
     Taxonomy:
-       description: A taxonomy's categories tree
-       properties:
-         namespace:
-           description: Name of the software package containing the reference taxonomy
-           type: string
-         taxonomy:
-           description: Categories tree
-           type: array
-           items:
-             $ref: '#/components/schemas/TaxonomyCategory'
+      description: A taxonomy's categories tree
+      properties:
+        namespace:
+          description: Name of the software package containing the reference taxonomy
+          type: string
+        taxonomy:
+          description: Categories tree
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxonomyCategory'
     DetectorInfo:
       description: Summary information about a detector
       properties:
@@ -1132,52 +1161,52 @@ components:
           items:
             $ref: '#/components/schemas/LanguageInfo'
     DetectorBaseDocument:
-      description: "Base document for all detectors"
+      description: Base document for all detectors
       properties:
-        "version":
-              description: "Service version"
-              type: string
-        "content":
-          description: "Analyzed text"
+        version:
+          description: Service version
           type: string
-        "language":
-          description: "Text language"
+        content:
+          description: Analyzed text
           type: string
-        "paragraphs":
-          description: "Paragraphs"
+        language:
+          description: Text language
+          type: string
+        paragraphs:
+          description: Paragraphs
           type: array
           items:
-            $ref: "#/components/schemas/Paragraph"
-        "sentences":
-          description: "Sentences"
+            $ref: '#/components/schemas/Paragraph'
+        sentences:
+          description: Sentences
           type: array
           items:
-            $ref: "#/components/schemas/Sentence"
-        "phrases":
-          description: "Phrases"
+            $ref: '#/components/schemas/Sentence'
+        phrases:
+          description: Phrases
           type: array
           items:
-            $ref: "#/components/schemas/Phrase"
-        "tokens":
-          description: "Tokens"
+            $ref: '#/components/schemas/Phrase'
+        tokens:
+          description: Tokens
           type: array
           items:
-            $ref: "#/components/schemas/Token"
-        "entities":
-          description: "Entities"
+            $ref: '#/components/schemas/Token'
+        entities:
+          description: Entities
           type: array
           items:
-            $ref: "#/components/schemas/Entity"
-        "knowledge":
-          description: "Knowledge Graph syncons' data"
+            $ref: '#/components/schemas/Entity'
+        knowledge:
+          description: Knowledge Graph syncons' data
           type: array
           items:
-            $ref: "#/components/schemas/KnowledgeEntry"
-        "extractions":
-          description: "Extracted information"
+            $ref: '#/components/schemas/KnowledgeEntry'
+        extractions:
+          description: Extracted information
           type: array
           items:
-            $ref: "#/components/schemas/Extraction"
+            $ref: '#/components/schemas/Extraction'
     ContextsResponse:
       description: Available contexts
       properties:
