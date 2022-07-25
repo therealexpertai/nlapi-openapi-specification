@@ -1,0 +1,189 @@
+openapi: 3.0.3
+info:
+  title: "ESG Sentiment detector"
+  description: >
+    The ESG Sentiment detector aims at categorizing ESG (Environmental, Social and Governance) news, social media posts or CSR (Corporate Social Responsibility) reports as negative or positive based on the actions or statements attributed to a company, country or institution. It returns ESG categories with a positive/negative connotation, referenced entities decorated with ESG data and overall, document level, ESG scores.
+  version: "v2"
+  contact:
+    email: "api.inquiry@expert.ai"
+    name: "expert.ai"
+    url: "https://expert.ai/"
+servers:
+  - url: "https://nlapi.expert.ai/v2"
+externalDocs:
+  description: "API documentation"
+  url: "https://docs.expert.ai/nlapi/v2/"
+tags:
+  - name: "Information detection"
+    description: "Information detection API endpoints"
+paths:
+  /detect/esg-sentiment/{language}:
+    post:
+      description: "Information detection on the posted text"
+      parameters:
+        - name: "language"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisRequest"
+        description: "The document on which to perform information detection"
+      responses:
+        "200":
+          description: "Resource response"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ESGSentimentDetectResponse"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "413":
+          description: "Request Entity Too Large"
+        "500":
+          description: "Internal Server Error"
+      security:
+        - bearerAuth: []
+      tags:
+        - "Information detection"
+components:
+  schemas:
+    AnalysisRequest:
+      description: "Request"
+      properties:
+        document:
+          $ref: "#/components/schemas/Document"
+    Document:
+      description: "Document"
+      properties:
+        text:
+          description: "The document's text"
+          type: "string"
+    ESGSentimentDetectResponse:
+      description: "ESG Sentiment detection resource response"
+      properties:
+        success:
+          description: "Operation completed successfully (true/false)"
+          type: "boolean"
+        errors:
+          description: "Service errors"
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ServiceError"
+        data:
+          $ref: "#/components/schemas/ESGSentimentDetectDocument"
+    ESGSentimentDetectDocument:
+      description: "Information detection data"
+      properties:
+        version:
+          description: "Service version"
+          type: "string"
+        language:
+          description: "Text language"
+          type: "string"
+        categories:
+          description: >
+            ESG categories with sentiment connotation, for example: 'Environment/Positive/Waste and Emissions Management' or 'Governance/Negative/Legal Compliance'"
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Category"
+        extractions:
+          description: >
+            Extractions of entities with ESG data and overall ESG sentiment scores. For example: 'entity=Acme Ltd., pollution_reduced=25%' or 'environment_performance_score=365'.
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Extraction"
+    Category:
+      description: "Category"
+      properties:
+        id:
+          description: "Category ID"
+          type: "string"
+        label:
+          description: "Category label"
+          type: "string"
+        hierarchy:
+          description: "Hierarchical path"
+          type: "array"
+          items:
+            type: "string"
+        score:
+          description: "Score assigned to the category to represent its relevance"
+          format: "int32"
+          type: "integer"
+        winner:
+          description: "True if the category is deemed particularly relevant"
+          type: "boolean"
+        namespace:
+          description: "Name of the software package containing the reference taxonomy"
+          type: "string"
+        frequency:
+          description: >
+            Score expressed as a percentage of the sum of the scores of all the
+            candidate categories, winners and not (see the **score** property)
+          format: "float"
+          type: "number"
+        positions:
+          description: >-
+            Positions of the portions of text that contributed to the selection
+            of the category
+          type: "array"
+          items:
+            $ref: "#/components/schemas/DocumentPosition"
+    Extraction:
+      description: "Extraction record"
+      properties:
+        "namespace":
+          description: "Software package name"
+          type: string
+        "template":
+          description: "Extraction record template"
+          type: string
+        "fields":
+          description: "Extraction record fields"
+          type: array
+          items:
+            properties:
+              "name":
+                description: "Field name"
+                type: string
+              "value":
+                description: "Field value"
+                type: string
+              "positions":
+                description: "Positions of parts of the text corresponding to the field value"
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentPosition"            
+    DocumentPosition:
+      description: "Position"
+      properties:
+        start:
+          description: "Zero-based position of the first character"
+          format: "int64"
+          type: "integer"
+        end:
+          description: "Zero-based position of the character after the last"
+          format: "int64"
+          type: "integer"
+    ServiceError:
+      description: "Error information"
+      properties:
+        code:
+          description: "Error code"
+          type: "string"
+        message:
+          description: "Error message"
+          type: "string"
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: "JWT"
+      scheme: "bearer"
+      type: "http"
