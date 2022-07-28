@@ -17,6 +17,7 @@ tags:
 paths:
   "/detect/writeprint/{language}":
     post:
+      summary: "Writeprint detection"
       tags:
         - Information detection
       parameters:

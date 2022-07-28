@@ -17,6 +17,7 @@ tags:
 paths:
   "/detect/pii/{language}":
     post:
+      summary: "PII detection"
       tags:
         - Information detection
       parameters:

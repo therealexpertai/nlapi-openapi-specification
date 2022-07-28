@@ -60,6 +60,8 @@ paths:
     $ref: "nlapi.yaml#/paths/~1taxonomies~1{taxonomy}~1{language}"
   /detectors:
     $ref: "nlapi.yaml#/paths/~1detectors"
+  /detect/{detector}/{language}:
+    $ref: "nlapi.yaml#/paths/~1detect~1{detector}~1{language}"
   /detect/pii/{language}:
     $ref: "pii.yaml#/paths/~1detect~1pii~1{language}"
   /detect/writeprint/{language}:

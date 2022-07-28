@@ -429,8 +429,59 @@ paths:
       summary: Detectors information
       tags:
         - Information detection
+  /detect/{detector}/{language}:
+    post:
+      description: Information detection on the posted text
+      parameters:
+        - description: >-
+            Detector name; use the `detectors` resource to discover available
+            detectors
+          in: path
+          name: detector
+          required: true
+          schema:
+            type: string
+        - description: >-
+            Document language (code); use the `detectors` resource to discover
+            the languages for which the detector is available
+          in: path
+          name: language
+          required: true
+          schema:
+            type: string
+            enum:
+              - de
+              - en
+              - es
+              - fr
+              - it
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+        description: The document on which to perform information detection
+      responses:
+        '200':
+          description: Resource response
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+        '500':
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Information detection
+      tags:
+        - Information detection
   /detect/pii/{language}:
     post:
+      summary: PII detection
       tags:
         - Information detection
       parameters:
@@ -463,6 +514,7 @@ paths:
         - bearerAuth: []
   /detect/writeprint/{language}:
     post:
+      summary: Writeprint detection
       tags:
         - Information detection
       parameters:
@@ -495,6 +547,7 @@ paths:
         - bearerAuth: []
   /detect/temporal-information/{language}:
     post:
+      summary: Temporal information detection
       tags:
         - Information detection
       parameters:
@@ -1529,6 +1582,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/KnowledgeEntry'
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
         extractions:
           description: Extracted information
           type: array
@@ -1780,14 +1838,7 @@ components:
           description: Success flag
           type: boolean
         error:
-          description: Error description
-          properties:
-            code:
-              description: Error code
-              type: string
-            message:
-              description: Error message
-              type: string
+          $ref: '#/components/schemas/ServiceError'
         data:
           allOf:
             - $ref: '#/components/schemas/DetectorBaseDocument'
@@ -1972,14 +2023,7 @@ components:
           description: Success flag
           type: boolean
         error:
-          description: Error description
-          properties:
-            code:
-              description: Error code
-              type: string
-            message:
-              description: Error message
-              type: string
+          $ref: '#/components/schemas/ServiceError'
         data:
           allOf:
             - $ref: '#/components/schemas/DetectorBaseDocument'
@@ -2093,14 +2137,7 @@ components:
           description: Success flag
           type: boolean
         error:
-          description: Error description
-          properties:
-            code:
-              description: Error code
-              type: string
-            message:
-              description: Error message
-              type: string
+          $ref: '#/components/schemas/ServiceError'
         data:
           allOf:
             - $ref: '#/components/schemas/DetectorBaseDocument'

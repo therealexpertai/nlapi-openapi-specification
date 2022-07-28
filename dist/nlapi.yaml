@@ -1202,6 +1202,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/KnowledgeEntry'
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
         extractions:
           description: Extracted information
           type: array

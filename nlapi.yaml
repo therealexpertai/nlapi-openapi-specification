@@ -1134,46 +1134,51 @@ components:
     DetectorBaseDocument:
       description: "Base document for all detectors"
       properties:
-        "version":
-              description: "Service version"
-              type: string
-        "content":
+        version:
+          description: "Service version"
+          type: string
+        content:
           description: "Analyzed text"
           type: string
-        "language":
+        language:
           description: "Text language"
           type: string
-        "paragraphs":
+        paragraphs:
           description: "Paragraphs"
           type: array
           items:
             $ref: "#/components/schemas/Paragraph"
-        "sentences":
+        sentences:
           description: "Sentences"
           type: array
           items:
             $ref: "#/components/schemas/Sentence"
-        "phrases":
+        phrases:
           description: "Phrases"
           type: array
           items:
             $ref: "#/components/schemas/Phrase"
-        "tokens":
+        tokens:
           description: "Tokens"
           type: array
           items:
             $ref: "#/components/schemas/Token"
-        "entities":
+        entities:
           description: "Entities"
           type: array
           items:
             $ref: "#/components/schemas/Entity"
-        "knowledge":
+        knowledge:
           description: "Knowledge Graph syncons' data"
           type: array
           items:
             $ref: "#/components/schemas/KnowledgeEntry"
-        "extractions":
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'            
+        extractions:
           description: "Extracted information"
           type: array
           items:

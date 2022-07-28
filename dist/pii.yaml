@@ -19,6 +19,7 @@ tags:
 paths:
   /detect/pii/{language}:
     post:
+      summary: PII detection
       tags:
         - Information detection
       parameters:
@@ -309,14 +310,7 @@ components:
           description: Success flag
           type: boolean
         error:
-          description: Error description
-          properties:
-            code:
-              description: Error code
-              type: string
-            message:
-              description: Error message
-              type: string
+          $ref: '#/components/schemas/ServiceError'
         data:
           allOf:
             - $ref: '#/components/schemas/DetectorBaseDocument'
@@ -336,6 +330,15 @@ components:
           $ref: '#/components/schemas/Document'
       required:
         - document
+    ServiceError:
+      description: Error information
+      properties:
+        code:
+          description: Error code
+          type: string
+        message:
+          description: Error message
+          type: string
     Paragraph:
       description: Paragraph info
       properties:
@@ -594,6 +597,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Property'
+    Category:
+      description: Category
+      properties:
+        id:
+          description: Category ID
+          type: string
+        label:
+          description: Category label
+          type: string
+        hierarchy:
+          description: Hierarchical path
+          type: array
+          items:
+            type: string
+        score:
+          description: Score assigned to the category to represent its relevance
+          format: int32
+          type: integer
+        winner:
+          description: True if the category is deemed particularly relevant
+          type: boolean
+        namespace:
+          description: Name of the software package containing the reference taxonomy
+          type: string
+        frequency:
+          description: >-
+            Score expressed as a percentage of the sum of the scores of all the
+            candidate categories, winners and not (see the **score** property)
+          format: float
+          type: number
+        positions:
+          description: >-
+            Positions of the portions of text that contributed to the selection
+            of the category
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentPosition'
     Extraction:
       description: Extraction record
       properties:
@@ -664,6 +704,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/KnowledgeEntry'
+        categories:
+          description: Categories
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
         extractions:
           description: Extracted information
           type: array

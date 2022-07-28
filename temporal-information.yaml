@@ -17,6 +17,7 @@ tags:
 paths:
   "/detect/temporal-information/{language}":
     post:
+      summary: "Temporal information detection"
       tags:
         - Information detection
       parameters:
