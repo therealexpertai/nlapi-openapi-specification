@@ -900,7 +900,7 @@ components:
             overall:
               description: Overall text sentiment score
               type: number
-              format: float;
+              format: float
             negativity:
               description: Text negativity
               type: number
