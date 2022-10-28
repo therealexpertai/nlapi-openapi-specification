@@ -205,7 +205,7 @@ components:
           description: "JSON-LD context"
           properties:
             "@version":
-              type: string
+              type: number
             "schema":
               type: string
             "matches":
